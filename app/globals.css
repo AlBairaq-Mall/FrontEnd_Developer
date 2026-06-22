@@ -1,0 +1,15 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-brand: #05a660;
+  --color-brand-dark: #048c51;
+  --color-sidebar: #111827;
+  --color-sidebar-hover: #1f2937;
+  --font-cairo: var(--font-cairo);
+}
+
+@layer base {
+  body {
+    @apply text-gray-800 bg-gray-50;
+  }
+}
