@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Input } from "@/components/ui/Input";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, Ban, CheckCircle } from "lucide-react";
 
 export default function CustomersPage() {
   const customers = [
@@ -69,8 +69,8 @@ export default function CustomersPage() {
       spent: "0 ر.س",
       joinDate: "2024/1/1",
       status: "محظور",
-      statusColor: "danger" as const,
-      avatarBg: "bg-green-100 text-green-700",
+      statusColor: "destructive" as const,
+      avatarBg: "bg-red-100 text-red-700",
       initial: "ع",
     },
   ];
@@ -79,12 +79,13 @@ export default function CustomersPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">العملاء</h2>
+        <p className="text-gray-500 mt-1">سجل العملاء وإدارة الحسابات (حظر/تفعيل).</p>
       </div>
 
       <Card>
         <div className="p-4 border-b border-gray-100">
           <div className="max-w-md">
-            <Input icon placeholder="ابحث عن عميل..." />
+            <Input icon placeholder="ابحث عن عميل بالاسم أو الجوال..." />
           </div>
         </div>
         <Table>
@@ -115,7 +116,7 @@ export default function CustomersPage() {
                 <TableCell>
                   <div className="text-sm">
                     <div className="text-gray-500">{customer.email}</div>
-                    <div className="text-gray-500 mt-1">{customer.phone}</div>
+                    <div className="text-gray-500 mt-1" dir="ltr">{customer.phone}</div>
                   </div>
                 </TableCell>
                 <TableCell>
@@ -132,10 +133,19 @@ export default function CustomersPage() {
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center gap-3">
-                    <button className="text-gray-400 hover:text-blue-500 transition-colors">
+                    {customer.status === "نشط" ? (
+                      <button className="text-gray-400 hover:text-red-500 transition-colors" title="حظر العميل">
+                        <Ban className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button className="text-gray-400 hover:text-green-500 transition-colors" title="تفعيل العميل">
+                        <CheckCircle className="w-4 h-4" />
+                      </button>
+                    )}
+                    <button className="text-gray-400 hover:text-blue-500 transition-colors" title="تعديل">
                       <Edit className="w-4 h-4" />
                     </button>
-                    <button className="text-gray-400 hover:text-red-500 transition-colors">
+                    <button className="text-gray-400 hover:text-red-500 transition-colors" title="حذف">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </div>

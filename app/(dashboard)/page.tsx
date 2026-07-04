@@ -3,9 +3,9 @@
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { DollarSign, ShoppingBag, Users, Activity } from "lucide-react";
-import Image from "next/image";
+import { DollarSign, ShoppingBag, Users, Activity, AlertTriangle } from "lucide-react";
 import Link from "next/link";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 
 export default function Dashboard() {
   const stats = [
@@ -35,18 +35,27 @@ export default function Dashboard() {
     },
   ];
 
-  const recentOrders = [
-    { id: "ORD-001#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
-    { id: "ORD-002#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
-    { id: "ORD-003#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
-    { id: "ORD-004#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
+  const salesData = [
+    { name: 'السبت', sales: 4000 },
+    { name: 'الأحد', sales: 3000 },
+    { name: 'الإثنين', sales: 2000 },
+    { name: 'الثلاثاء', sales: 2780 },
+    { name: 'الأربعاء', sales: 1890 },
+    { name: 'الخميس', sales: 2390 },
+    { name: 'الجمعة', sales: 3490 },
   ];
 
-  const topProducts = [
-    { name: "تفاح أحمر طازج", price: "12.5 ر.س", sold: 432 },
-    { name: "تفاح أحمر طازج", price: "12.5 ر.س", sold: 432 },
-    { name: "تفاح أحمر طازج", price: "12.5 ر.س", sold: 432 },
-    { name: "تفاح أحمر طازج", price: "12.5 ر.س", sold: 432 },
+  const recentOrders = [
+    { id: "ORD-001#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
+    { id: "ORD-002#", customer: "سارة عبد الله", date: "منذ 3 ساعات", amount: "150.00 ر.س", status: "مكتمل", statusVariant: "success" as const },
+    { id: "ORD-003#", customer: "خالد فهد", date: "منذ 5 ساعات", amount: "89.90 ر.س", status: "ملغي", statusVariant: "destructive" as const },
+    { id: "ORD-004#", customer: "منى علي", date: "منذ 8 ساعات", amount: "420.00 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
+  ];
+
+  const lowStockAlerts = [
+    { name: "عصير برتقال طبيعي", stock: 5, statusVariant: "destructive" as const },
+    { name: "خبز أسمر للدايت", stock: 12, statusVariant: "warning" as const },
+    { name: "جبن أبيض قليل الدسم", stock: 8, statusVariant: "destructive" as const },
   ];
 
   return (
@@ -69,17 +78,69 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Recent Orders */}
+        {/* Sales Chart */}
         <Card className="lg:col-span-2">
           <CardHeader>
+            <h3 className="text-lg font-bold text-gray-800">تحليل المبيعات (أسبوعي)</h3>
+          </CardHeader>
+          <CardContent className="h-80">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={salesData} margin={{ top: 10, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorSales" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.8}/>
+                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f3f4f6" />
+                <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} />
+                <YAxis axisLine={false} tickLine={false} tick={{fill: '#6b7280'}} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
+                  labelStyle={{ fontWeight: 'bold', color: '#374151' }}
+                />
+                <Area type="monotone" dataKey="sales" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorSales)" name="المبيعات" />
+              </AreaChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        {/* Low Stock Alerts */}
+        <Card>
+          <CardHeader className="bg-red-50/50">
+            <div className="flex items-center gap-2 text-red-600">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="text-lg font-bold">تنبيهات المخزون</h3>
+            </div>
+          </CardHeader>
+          <CardContent className="p-0">
+            <div className="divide-y divide-gray-100">
+              {lowStockAlerts.map((item, i) => (
+                <div key={i} className="p-4 flex items-center justify-between hover:bg-gray-50 transition-colors">
+                  <span className="font-medium text-gray-900">{item.name}</span>
+                  <Badge variant={item.statusVariant}>متبقي {item.stock}</Badge>
+                </div>
+              ))}
+              <div className="p-4 text-center">
+                <Link href="/inventory" className="text-sm font-medium text-brand hover:text-brand-dark">
+                  إدارة المخزون &rarr;
+                </Link>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Recent Orders */}
+        <Card className="lg:col-span-3">
+          <CardHeader>
             <div className="flex items-center justify-between w-full">
-              <h3 className="text-lg font-bold text-gray-800">أحدث الطلبات</h3>
+              <h3 className="text-lg font-bold text-gray-800">أحدث الطلبات النشطة</h3>
               <Link href="/orders" className="text-sm font-medium text-brand hover:text-brand-dark">
-                عرض الكل
+                عرض كل الطلبات
               </Link>
             </div>
           </CardHeader>
-          <div className="p-0">
+          <div className="p-0 overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -105,32 +166,6 @@ export default function Dashboard() {
               </TableBody>
             </Table>
           </div>
-        </Card>
-
-        {/* Top Selling Products */}
-        <Card>
-          <CardHeader>
-            <h3 className="text-lg font-bold text-gray-800">المنتجات الأكثر مبيعاً</h3>
-          </CardHeader>
-          <CardContent className="p-0">
-            <div className="divide-y divide-gray-100">
-              {topProducts.map((product, i) => (
-                <div key={i} className="p-4 flex items-center gap-4 hover:bg-gray-50 transition-colors">
-                  <div className="w-16 h-16 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 overflow-hidden relative">
-                    {/* Placeholder for image */}
-                    <div className="absolute inset-0 bg-gray-200"></div>
-                  </div>
-                  <div className="flex-1">
-                    <h4 className="font-bold text-gray-900">{product.name}</h4>
-                    <p className="text-sm text-gray-500 mt-1">تم بيع {product.sold} مرة</p>
-                  </div>
-                  <div className="text-brand font-bold">
-                    {product.price}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
         </Card>
       </div>
     </div>
