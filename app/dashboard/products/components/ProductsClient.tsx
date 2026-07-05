@@ -1,0 +1,180 @@
+"use client";
+
+import { useState } from "react";
+import { Card, CardHeader } from "@/components/ui/Card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { Badge } from "@/components/ui/Badge";
+import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { deleteProduct } from "@/lib/actions/products";
+import Link from "next/link";
+
+export function ProductsClient({ products }: { products: any[] }) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const handleOpenDeleteModal = (product: any) => {
+    setSelectedProduct(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!selectedProduct) return;
+    setIsDeleting(true);
+    const res = await deleteProduct(selectedProduct.id);
+    setIsDeleting(false);
+    if (res.success) {
+      setIsDeleteModalOpen(false);
+      setSelectedProduct(null);
+    } else {
+      alert(res.error || "حدث خطأ أثناء الحذف");
+    }
+  };
+
+  const filteredProducts = products.filter(p => 
+    p.name_ar?.includes(searchQuery) || 
+    p.name_en?.includes(searchQuery) ||
+    p.barcode?.includes(searchQuery) ||
+    p.unique_number?.includes(searchQuery)
+  );
+
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">إدارة المنتجات</h2>
+          <p className="text-gray-500 mt-1">إضافة وتعديل وحذف المنتجات والتحكم بالمخزون.</p>
+        </div>
+        <Link 
+          href="/dashboard/products/new"
+          className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors"
+        >
+          <Plus className="w-5 h-5" />
+          <span>إضافة منتج جديد</span>
+        </Link>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+            <h3 className="text-lg font-bold text-gray-800">قائمة المنتجات</h3>
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="ابحث بالاسم أو الباركود..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-64"
+              />
+              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            </div>
+          </div>
+        </CardHeader>
+        <div className="p-0 overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>المنتج</TableHead>
+                <TableHead>الرقم المميز / الباركود</TableHead>
+                <TableHead>القسم</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>الإجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredProducts.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={5} className="text-center py-6 text-gray-500">
+                    لا توجد منتجات
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredProducts.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {product.images && product.images.length > 0 ? (
+                          <img 
+                            src={`https://backend-albarqy.onrender.com/storage/${product.images[0].image}`} 
+                            alt={product.name_ar} 
+                            className="w-10 h-10 rounded-md object-cover border"
+                            onError={(e) => { e.currentTarget.src = "/placeholder.png" }}
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-md bg-gray-100 border flex items-center justify-center text-gray-400 text-xs">
+                            لا صورة
+                          </div>
+                        )}
+                        <div>
+                          <p className="font-bold text-gray-900">{product.name_ar}</p>
+                          <p className="text-xs text-gray-500">{product.name_en}</p>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm">
+                        <p><strong>الرقم:</strong> {product.unique_number}</p>
+                        <p className="text-gray-500"><strong>الباركود:</strong> {product.barcode}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {product.category ? product.category.name_ar : <span className="text-gray-400">-</span>}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={product.status ? "success" : "destructive"}>
+                        {product.status ? "نشط" : "غير نشط"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Link href={`/dashboard/products/${product.id}`} className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors">
+                          <Eye className="w-4 h-4" />
+                        </Link>
+                        <Link href={`/dashboard/products/${product.id}/edit`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                          <Edit className="w-4 h-4" />
+                        </Link>
+                        <button 
+                          onClick={() => handleOpenDeleteModal(product)}
+                          className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="تأكيد الحذف"
+      >
+        <div className="p-4" dir="rtl">
+          <p className="mb-6">هل أنت متأكد من رغبتك في حذف المنتج <strong>{selectedProduct?.name_ar}</strong>؟ لا يمكن التراجع عن هذا الإجراء.</p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? "جاري الحذف..." : "حذف"}
+            </button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}

@@ -79,7 +79,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
-        <Card className="lg:col-span-2">
+        {/* <Card className="lg:col-span-2">
           <CardHeader>
             <h3 className="text-lg font-bold text-gray-800">تحليل المبيعات (أسبوعي)</h3>
           </CardHeader>
@@ -103,10 +103,10 @@ export default function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Low Stock Alerts */}
-        <Card>
+        {/* <Card>
           <CardHeader className="bg-red-50/50">
             <div className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="w-5 h-5" />
@@ -128,7 +128,7 @@ export default function Dashboard() {
               </div>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Recent Orders */}
         <Card className="lg:col-span-3">

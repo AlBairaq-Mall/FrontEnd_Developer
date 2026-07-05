@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { logout } from "@/lib/actions/auth";
 import { 
   LayoutDashboard, 
   Package, 
@@ -22,10 +23,11 @@ import {
   ChevronDown,
   ChevronUp
 } from "lucide-react";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const [isLoggingOut, startLogout] = useTransition();
   
   // A simple state for toggling groups could be added, but for simplicity we'll keep them open
   // or just use a flat stylized list if preferred. Let's use groups.
@@ -34,58 +36,59 @@ export default function Sidebar() {
     {
       title: "الرئيسية",
       links: [
-        { href: "/", label: "لوحة القيادة", icon: LayoutDashboard },
+        { href: "/dashboard", label: "لوحة القيادة", icon: LayoutDashboard },
       ]
     },
     {
       title: "الكتالوج",
       links: [
-        { href: "/categories", label: "الأقسام", icon: Tags },
-        { href: "/products", label: "المنتجات", icon: Package },
-        { href: "/media", label: "الوسائط", icon: ImageIcon },
+        { href: "/dashboard/categories", label: "الأقسام", icon: Tags },
+        { href: "/dashboard/units", label: "الوحدات", icon: Archive },
+        { href: "/dashboard/products", label: "المنتجات", icon: Package },
+        // { href: "/dashboard/media", label: "الوسائط", icon: ImageIcon },
       ]
     },
-    {
-      title: "المخزون",
-      links: [
-        { href: "/inventory", label: "إدارة المخزون", icon: Archive },
-      ]
-    },
+    // {
+    //   title: "المخزون",
+    //   links: [
+    //     // { href: "/dashboard/inventory", label: "إدارة المخزون", icon: Archive },
+    //   ]
+    // },
     {
       title: "المبيعات",
       links: [
-        { href: "/orders", label: "الطلبات", icon: ShoppingCart },
-        { href: "/refunds", label: "المستردات", icon: Undo2 },
+        { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
+        // { href: "/dashboard/refunds", label: "المستردات", icon: Undo2 },
       ]
     },
     {
       title: "اللوجستيات",
       links: [
-        { href: "/branches", label: "الفروع والمناطق", icon: MapPin },
-        { href: "/drivers", label: "المندوبين", icon: Truck },
+        { href: "/dashboard/branches", label: "الفروع والمناطق", icon: MapPin },
+        // { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
       ]
     },
     {
       title: "التسويق والعملاء",
       links: [
-        { href: "/customers", label: "العملاء", icon: Users },
-        { href: "/coupons", label: "الكوبونات", icon: Ticket },
-        { href: "/notifications", label: "الإشعارات", icon: Bell },
+        { href: "/dashboard/customers", label: "العملاء", icon: Users },
+        // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
+        // { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
       ]
     },
-    {
-      title: "التقارير",
-      links: [
-        { href: "/reports", label: "التقارير المتقدمة", icon: FileBarChart },
-      ]
-    },
-    {
-      title: "الإعدادات",
-      links: [
-        { href: "/settings", label: "الموظفين والأدوار", icon: Settings },
-        { href: "/settings/audit", label: "سجل النظام", icon: ShieldAlert },
-      ]
-    }
+    // {
+    //   title: "التقارير",
+    //   links: [
+    //     { href: "/dashboard/reports", label: "التقارير المتقدمة", icon: FileBarChart },
+    //   ]
+    // },
+    // {
+    //   title: "الإعدادات",
+    //   links: [
+    //     { href: "/dashboard/settings", label: "الموظفين والأدوار", icon: Settings },
+    //     // { href: "/dashboard/settings/audit", label: "سجل النظام", icon: ShieldAlert },
+    //   ]
+    // }
   ];
 
   return (
@@ -105,7 +108,7 @@ export default function Sidebar() {
             <div className="space-y-1">
               {group.links.map((link) => {
                 const Icon = link.icon;
-                const isActive = pathname === link.href || (link.href !== '/' && pathname.startsWith(link.href));
+                const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
                 
                 return (
                   <Link
@@ -128,9 +131,21 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 mt-auto border-t border-sidebar-hover/50 bg-sidebar sticky bottom-0">
-        <button className="flex items-center gap-3 px-4 py-3 w-full text-red-400 hover:bg-red-500/10 hover:text-red-300 rounded-lg transition-colors font-medium text-sm">
-          <LogOut className="w-5 h-5" />
-          <span>تسجيل الخروج</span>
+        <button 
+          disabled={isLoggingOut}
+          onClick={() => startLogout(() => logout())} 
+          className={`flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors font-medium text-sm ${
+            isLoggingOut 
+              ? "text-red-300 bg-red-500/10 cursor-not-allowed opacity-70" 
+              : "text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer"
+          }`}
+        >
+          {isLoggingOut ? (
+            <div className="w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />
+          ) : (
+            <LogOut className="w-5 h-5" />
+          )}
+          <span>{isLoggingOut ? "جاري الخروج..." : "تسجيل الخروج"}</span>
         </button>
       </div>
     </aside>

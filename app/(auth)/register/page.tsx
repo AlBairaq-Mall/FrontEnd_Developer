@@ -5,21 +5,21 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
-import { login } from "@/lib/actions/auth";
+import { Lock, Mail, AlertCircle, Loader2, User } from "lucide-react";
+import { register } from "@/lib/actions/auth";
 
-export default function LoginPage() {
-    const [state, formAction, isPending] = useActionState(login, null);
+export default function RegisterPage() {
+  const [state, formAction, isPending] = useActionState(register, null);
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4 font-cairo">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand/10 text-brand mb-4">
-            <Lock className="w-8 h-8" />
+            <User className="w-8 h-8" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">مرحباً بك مجدداً</h1>
-          <p className="text-gray-500 mt-2">تسجيل الدخول إلى لوحة إدارة البيرق</p>
+          <h1 className="text-3xl font-bold text-gray-900">إنشاء حساب جديد</h1>
+          <p className="text-gray-500 mt-2">انضم إلى لوحة إدارة البيرق الآن</p>
         </div>
 
         <Card className="shadow-lg">
@@ -32,6 +32,24 @@ export default function LoginPage() {
                 </div>
               )}
               
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  الاسم الكامل
+                </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                    <User className="h-5 w-5" />
+                  </div>
+                  <Input 
+                    type="text" 
+                    name="name"
+                    required
+                    placeholder="أحمد محمد" 
+                    className="pr-10 bg-white" 
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   البريد الإلكتروني
@@ -52,14 +70,9 @@ export default function LoginPage() {
               </div>
 
               <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">
-                    كلمة المرور
-                  </label>
-                  <a href="#" className="text-sm font-medium text-brand hover:text-brand-dark">
-                    نسيت كلمة المرور؟
-                  </a>
-                </div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  كلمة المرور
+                </label>
                 <div className="relative">
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Lock className="h-5 w-5" />
@@ -75,38 +88,44 @@ export default function LoginPage() {
                 </div>
               </div>
 
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-brand focus:ring-brand border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="mr-2 block text-sm text-gray-900">
-                  تذكرني
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  تأكيد كلمة المرور
                 </label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                    <Lock className="h-5 w-5" />
+                  </div>
+                  <Input 
+                    type="password" 
+                    name="password_confirmation"
+                    required
+                    placeholder="••••••••" 
+                    className="pr-10 bg-white" 
+                    dir="ltr"
+                  />
+                </div>
               </div>
 
-              <Button type="submit" disabled={isPending} className="w-full h-12 text-lg">
+              <Button type="submit" disabled={isPending} className="w-full h-12 text-lg mt-4">
                 {isPending ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                    جاري تسجيل الدخول...
+                    جاري إنشاء الحساب...
                   </>
                 ) : (
-                  "تسجيل الدخول"
+                  "إنشاء حساب"
                 )}
               </Button>
-
+              
               <div className="text-center mt-6 text-sm text-gray-600">
-                ليس لديك حساب؟{' '}
-                <Link href="/register" className="text-brand font-bold hover:underline">
-                  إنشاء حساب جديد
+                لديك حساب بالفعل؟{' '}
+                <Link href="/login" className="text-brand font-bold hover:underline">
+                  تسجيل الدخول
                 </Link>
               </div>
             </form>
           </CardContent>
-
         </Card>
         
         <p className="text-center text-sm text-gray-500 mt-6">
