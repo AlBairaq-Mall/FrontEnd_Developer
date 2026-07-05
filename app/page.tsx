@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, UserPlus } from "lucide-react";
 
 export default function LandingPage() {
@@ -10,10 +11,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-20">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-brand to-brand-dark flex items-center justify-center text-white shadow-lg shadow-brand/20">
-                <span className="font-bold text-xl">ب</span>
-              </div>
-              <span className="font-bold text-2xl text-gray-900 tracking-tight">البيرق</span>
+              <Image src="/logo.png" alt="البيرق ماركت" width={100} height={40} className="object-contain" priority />
             </div>
             <div className="flex items-center gap-4">
               <Link

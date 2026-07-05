@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
 import { 
@@ -93,8 +94,10 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-sidebar text-white flex flex-col min-h-screen sticky top-0 shrink-0 overflow-y-auto custom-scrollbar">
-      <div className="p-6 text-xl font-bold text-brand sticky top-0 bg-sidebar z-10 border-b border-sidebar-hover/50">
-        لوحة الإدارة
+      <div className="p-4 sticky top-0 bg-sidebar z-10 border-b border-sidebar-hover/50 flex justify-center items-center">
+        <div className="bg-white p-2 rounded-xl">
+          <Image src="/logo.png" alt="البيرق ماركت" width={100} height={100} className="object-contain" priority />
+        </div>
       </div>
       
       <nav className="flex-1 px-4 py-4 space-y-6">

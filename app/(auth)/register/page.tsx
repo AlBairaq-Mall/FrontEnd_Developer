@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
+import Image from "next/image";
 import { Lock, Mail, AlertCircle, Loader2, User } from "lucide-react";
 import { register } from "@/lib/actions/auth";
 
@@ -15,8 +16,8 @@ export default function RegisterPage() {
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4 font-cairo">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-brand/10 text-brand mb-4">
-            <User className="w-8 h-8" />
+          <div className="inline-flex items-center justify-center mb-6">
+            <Image src="/logo.png" alt="البيرق ماركت" width={120} height={120} className="object-contain" priority />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">إنشاء حساب جديد</h1>
           <p className="text-gray-500 mt-2">انضم إلى لوحة إدارة البيرق الآن</p>

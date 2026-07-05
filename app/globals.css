@@ -1,10 +1,10 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-brand: #05a660;
-  --color-brand-dark: #048c51;
-  --color-sidebar: #111827;
-  --color-sidebar-hover: #1f2937;
+  --color-brand: #df9f00;
+  --color-brand-dark: #b38000;
+  --color-sidebar: #111111;
+  --color-sidebar-hover: #222222;
   --font-cairo: var(--font-cairo);
 }
 
