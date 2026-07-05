@@ -54,28 +54,28 @@ export default function Sidebar() {
     //     // { href: "/dashboard/inventory", label: "إدارة المخزون", icon: Archive },
     //   ]
     // },
-    {
-      title: "المبيعات",
-      links: [
-        { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
-        // { href: "/dashboard/refunds", label: "المستردات", icon: Undo2 },
-      ]
-    },
-    {
-      title: "اللوجستيات",
-      links: [
-        { href: "/dashboard/branches", label: "الفروع والمناطق", icon: MapPin },
-        // { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
-      ]
-    },
-    {
-      title: "التسويق والعملاء",
-      links: [
-        { href: "/dashboard/customers", label: "العملاء", icon: Users },
-        // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
-        // { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
-      ]
-    },
+    // {
+    //   title: "المبيعات",
+    //   links: [
+    //     { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
+    //     // { href: "/dashboard/refunds", label: "المستردات", icon: Undo2 },
+    //   ]
+    // },
+    // {
+    //   title: "اللوجستيات",
+    //   links: [
+    //     { href: "/dashboard/branches", label: "الفروع والمناطق", icon: MapPin },
+    //     // { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
+    //   ]
+    // },
+    // {
+    //   title: "التسويق والعملاء",
+    //   links: [
+    //     { href: "/dashboard/customers", label: "العملاء", icon: Users },
+    //     // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
+    //     // { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
+    //   ]
+    // },
     // {
     //   title: "التقارير",
     //   links: [

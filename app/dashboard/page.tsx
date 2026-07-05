@@ -61,7 +61,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <Card key={i}>
             <CardContent className="p-6 flex items-center justify-between">
@@ -75,7 +75,7 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         ))}
-      </div>
+      </div> */}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
@@ -131,7 +131,7 @@ export default function Dashboard() {
         </Card> */}
 
         {/* Recent Orders */}
-        <Card className="lg:col-span-3">
+        {/* <Card className="lg:col-span-3">
           <CardHeader>
             <div className="flex items-center justify-between w-full">
               <h3 className="text-lg font-bold text-gray-800">أحدث الطلبات النشطة</h3>
@@ -166,7 +166,7 @@ export default function Dashboard() {
               </TableBody>
             </Table>
           </div>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

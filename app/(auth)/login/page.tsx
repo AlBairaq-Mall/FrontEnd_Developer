@@ -1,15 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import Link from "next/link";
-import { Lock, Mail, AlertCircle, Loader2 } from "lucide-react";
+import { Lock, Mail, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { login } from "@/lib/actions/auth";
 
 export default function LoginPage() {
     const [state, formAction, isPending] = useActionState(login, null);
+    const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
@@ -56,35 +57,30 @@ export default function LoginPage() {
                   <label className="block text-sm font-medium text-gray-700">
                     كلمة المرور
                   </label>
-                  <a href="#" className="text-sm font-medium text-brand hover:text-brand-dark">
+                  {/* <a href="#" className="text-sm font-medium text-brand hover:text-brand-dark">
                     نسيت كلمة المرور؟
-                  </a>
+                  </a> */}
                 </div>
                 <div className="relative">
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Lock className="h-5 w-5" />
                   </div>
                   <Input 
-                    type="password" 
+                    type={showPassword ? "text" : "password"} 
                     name="password"
                     required
                     placeholder="••••••••" 
-                    className="pr-10 bg-white" 
+                    className="pr-10 pl-10 bg-white" 
                     dir="ltr"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400 hover:text-gray-600 focus:outline-none"
+                  >
+                    {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                 </div>
-              </div>
-
-              <div className="flex items-center">
-                <input
-                  id="remember-me"
-                  name="remember-me"
-                  type="checkbox"
-                  className="h-4 w-4 text-brand focus:ring-brand border-gray-300 rounded"
-                />
-                <label htmlFor="remember-me" className="mr-2 block text-sm text-gray-900">
-                  تذكرني
-                </label>
               </div>
 
               <Button type="submit" disabled={isPending} className="w-full h-12 text-lg">
