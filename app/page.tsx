@@ -1,6 +1,33 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, UserPlus } from "lucide-react";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "البيرق ماركت - نظام الإدارة المتكامل",
+  description: "الحل الأمثل لإدارة متجرك الإلكتروني بكفاءة عالية. تتبع مبيعاتك، أدر مخزونك، وتواصل مع عملائك من خلال لوحة تحكم واحدة متطورة.",
+  openGraph: {
+    title: "البيرق ماركت - نظام الإدارة المتكامل",
+    description: "الحل الأمثل لإدارة متجرك الإلكتروني بكفاءة عالية.",
+    siteName: "البيرق ماركت",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "شعار البيرق ماركت",
+      },
+    ],
+    locale: "ar_SA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "البيرق ماركت - نظام الإدارة المتكامل",
+    description: "الحل الأمثل لإدارة متجرك الإلكتروني بكفاءة عالية.",
+    images: ["/logo.png"],
+  },
+};
 
 export default function LandingPage() {
   return (
