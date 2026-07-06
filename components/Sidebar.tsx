@@ -4,12 +4,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { logout } from "@/lib/actions/auth";
-import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  MapPin, 
-  Settings, 
+import {
+  LayoutDashboard,
+  Package,
+  Users,
+  MapPin,
+  Settings,
   LogOut,
   Tags,
   Image as ImageIcon,
@@ -22,14 +22,15 @@ import {
   FileBarChart,
   ShieldAlert,
   ChevronDown,
-  ChevronUp
+  ChevronUp,
+  Percent
 } from "lucide-react";
 import { useState, useTransition } from "react";
 
 export default function Sidebar() {
   const pathname = usePathname();
   const [isLoggingOut, startLogout] = useTransition();
-  
+
   // A simple state for toggling groups could be added, but for simplicity we'll keep them open
   // or just use a flat stylized list if preferred. Let's use groups.
 
@@ -46,48 +47,46 @@ export default function Sidebar() {
         { href: "/dashboard/categories", label: "الأقسام", icon: Tags },
         { href: "/dashboard/units", label: "الوحدات", icon: Archive },
         { href: "/dashboard/products", label: "المنتجات", icon: Package },
-        // { href: "/dashboard/media", label: "الوسائط", icon: ImageIcon },
-      ]
+       ]
     },
     // {
     //   title: "المخزون",
     //   links: [
-    //     // { href: "/dashboard/inventory", label: "إدارة المخزون", icon: Archive },
+    //     { href: "/dashboard/inventory", label: "إدارة المخزون", icon: Archive },
     //   ]
     // },
-    // {
-    //   title: "المبيعات",
-    //   links: [
-    //     { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
-    //     // { href: "/dashboard/refunds", label: "المستردات", icon: Undo2 },
-    //   ]
-    // },
-    // {
-    //   title: "اللوجستيات",
-    //   links: [
-    //     { href: "/dashboard/branches", label: "الفروع والمناطق", icon: MapPin },
-    //     // { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
-    //   ]
-    // },
-    // {
-    //   title: "التسويق والعملاء",
-    //   links: [
-    //     { href: "/dashboard/customers", label: "العملاء", icon: Users },
-    //     // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
-    //     // { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
-    //   ]
-    // },
-    // {
-    //   title: "التقارير",
-    //   links: [
-    //     { href: "/dashboard/reports", label: "التقارير المتقدمة", icon: FileBarChart },
-    //   ]
-    // },
+    {
+      title: "المبيعات",
+      links: [
+        { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
+      ]
+    },
+    {
+      title: "اللوجستيات",
+      links: [
+         { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
+      ]
+    },
+    {
+      title: "التسويق والعملاء",
+      links: [
+        { href: "/dashboard/offers", label: "العروض", icon: Percent },
+        { href: "/dashboard/customers", label: "العملاء", icon: Users },
+        // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
+        { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
+      ]
+    },
+    {
+      title: "التقارير",
+      links: [
+        { href: "/dashboard/reports", label: "التقارير المتقدمة", icon: FileBarChart },
+      ]
+    },
     // {
     //   title: "الإعدادات",
     //   links: [
     //     { href: "/dashboard/settings", label: "الموظفين والأدوار", icon: Settings },
-    //     // { href: "/dashboard/settings/audit", label: "سجل النظام", icon: ShieldAlert },
+    //     { href: "/dashboard/settings/audit", label: "سجل النظام", icon: ShieldAlert },
     //   ]
     // }
   ];
@@ -99,7 +98,7 @@ export default function Sidebar() {
           <Image src="/logo.png" alt="البيرق ماركت" width={100} height={100} className="object-contain" priority />
         </div>
       </div>
-      
+
       <nav className="flex-1 px-4 py-4 space-y-6">
         {menuGroups.map((group, idx) => (
           <div key={idx} className="space-y-2">
@@ -112,16 +111,15 @@ export default function Sidebar() {
               {group.links.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href || (link.href !== '/dashboard' && pathname.startsWith(link.href));
-                
+
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${
-                      isActive 
-                        ? "bg-brand text-white shadow-md shadow-brand/20" 
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all ${isActive
+                        ? "bg-brand text-white shadow-md shadow-brand/20"
                         : "text-gray-300 hover:bg-sidebar-hover hover:text-white"
-                    }`}
+                      }`}
                   >
                     <Icon className={`w-5 h-5 ${isActive ? 'text-white' : 'text-gray-400'}`} />
                     <span className="font-medium text-sm">{link.label}</span>
@@ -134,14 +132,13 @@ export default function Sidebar() {
       </nav>
 
       <div className="p-4 mt-auto border-t border-sidebar-hover/50 bg-sidebar sticky bottom-0">
-        <button 
+        <button
           disabled={isLoggingOut}
-          onClick={() => startLogout(() => logout())} 
-          className={`flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors font-medium text-sm ${
-            isLoggingOut 
-              ? "text-red-300 bg-red-500/10 cursor-not-allowed opacity-70" 
+          onClick={() => startLogout(() => logout())}
+          className={`flex items-center gap-3 px-4 py-3 w-full rounded-lg transition-colors font-medium text-sm ${isLoggingOut
+              ? "text-red-300 bg-red-500/10 cursor-not-allowed opacity-70"
               : "text-red-400 hover:bg-red-500/10 hover:text-red-300 cursor-pointer"
-          }`}
+            }`}
         >
           {isLoggingOut ? (
             <div className="w-5 h-5 border-2 border-red-300 border-t-transparent rounded-full animate-spin" />

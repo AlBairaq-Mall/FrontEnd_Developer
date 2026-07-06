@@ -10,25 +10,25 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 export default function Dashboard() {
   const stats = [
     {
-      title: "إجمالي المبيعات",
+      title: "عدد الطلبات اليومية",
       value: "45,231 ر.س",
       icon: DollarSign,
       color: "bg-blue-500",
     },
     {
-      title: "الطلبات الجديدة",
+      title: "إجمالي الإيرادات",
       value: "124",
       icon: ShoppingBag,
       color: "bg-brand",
     },
     {
-      title: "العملاء",
+      title: "عدد العملاء الجدد",
       value: "1,204",
       icon: Users,
       color: "bg-purple-500",
     },
     {
-      title: "زيارات اليوم",
+      title: "عدد المندوبين النشطين",
       value: "8,320",
       icon: Activity,
       color: "bg-orange-500",
@@ -61,7 +61,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
-      {/* <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {stats.map((stat, i) => (
           <Card key={i}>
             <CardContent className="p-6 flex items-center justify-between">
@@ -75,13 +75,13 @@ export default function Dashboard() {
             </CardContent>
           </Card>
         ))}
-      </div> */}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Sales Chart */}
-        {/* <Card className="lg:col-span-2">
+        <Card className="lg:col-span-2">
           <CardHeader>
-            <h3 className="text-lg font-bold text-gray-800">تحليل المبيعات (أسبوعي)</h3>
+            <h3 className="text-lg font-bold text-gray-800">اتجاهات المبيعات اليومية والأسبوعية والشهرية</h3>
           </CardHeader>
           <CardContent className="h-80">
             <ResponsiveContainer width="100%" height="100%">
@@ -103,7 +103,7 @@ export default function Dashboard() {
               </AreaChart>
             </ResponsiveContainer>
           </CardContent>
-        </Card> */}
+        </Card>
 
         {/* Low Stock Alerts */}
         {/* <Card>

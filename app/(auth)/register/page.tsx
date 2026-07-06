@@ -32,7 +32,7 @@ export default function RegisterPage() {
                   <span>{state.error}</span>
                 </div>
               )}
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   الاسم الكامل
@@ -41,12 +41,12 @@ export default function RegisterPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <User className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type="text" 
+                  <Input
+                    type="text"
                     name="name"
                     required
-                    placeholder="أحمد محمد" 
-                    className="pr-10 bg-white" 
+                    placeholder="أحمد محمد"
+                    className="pr-10 bg-white"
                   />
                 </div>
               </div>
@@ -59,12 +59,12 @@ export default function RegisterPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type="email" 
+                  <Input
+                    type="email"
                     name="email"
                     required
-                    placeholder="admin@example.com" 
-                    className="pr-10 bg-white" 
+                    placeholder="admin@example.com"
+                    className="pr-10 bg-white"
                     dir="ltr"
                   />
                 </div>
@@ -78,12 +78,12 @@ export default function RegisterPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Lock className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type="password" 
+                  <Input
+                    type="password"
                     name="password"
                     required
-                    placeholder="••••••••" 
-                    className="pr-10 bg-white" 
+                    placeholder="••••••••"
+                    className="pr-10 bg-white"
                     dir="ltr"
                   />
                 </div>
@@ -97,12 +97,12 @@ export default function RegisterPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Lock className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type="password" 
+                  <Input
+                    type="password"
                     name="password_confirmation"
                     required
-                    placeholder="••••••••" 
-                    className="pr-10 bg-white" 
+                    placeholder="••••••••"
+                    className="pr-10 bg-white"
                     dir="ltr"
                   />
                 </div>
@@ -118,7 +118,7 @@ export default function RegisterPage() {
                   "إنشاء حساب"
                 )}
               </Button>
-              
+
               <div className="text-center mt-6 text-sm text-gray-600">
                 لديك حساب بالفعل؟{' '}
                 <Link href="/login" className="text-brand font-bold hover:underline">
@@ -128,7 +128,7 @@ export default function RegisterPage() {
             </form>
           </CardContent>
         </Card>
-        
+
         <p className="text-center text-sm text-gray-500 mt-6">
           © {new Date().getFullYear()} البيرق. جميع الحقوق محفوظة.
         </p>

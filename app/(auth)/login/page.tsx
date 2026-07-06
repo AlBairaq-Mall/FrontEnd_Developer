@@ -10,8 +10,8 @@ import { Lock, Mail, AlertCircle, Loader2, Eye, EyeOff } from "lucide-react";
 import { login } from "@/lib/actions/auth";
 
 export default function LoginPage() {
-    const [state, formAction, isPending] = useActionState(login, null);
-    const [showPassword, setShowPassword] = useState(false);
+  const [state, formAction, isPending] = useActionState(login, null);
+  const [showPassword, setShowPassword] = useState(false);
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4">
@@ -33,7 +33,7 @@ export default function LoginPage() {
                   <span>{state.error}</span>
                 </div>
               )}
-              
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   البريد الإلكتروني
@@ -42,12 +42,12 @@ export default function LoginPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Mail className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type="email" 
+                  <Input
+                    type="email"
                     name="email"
                     required
-                    placeholder="admin@example.com" 
-                    className="pr-10 bg-white" 
+                    placeholder="admin@example.com"
+                    className="pr-10 bg-white"
                     dir="ltr"
                   />
                 </div>
@@ -66,12 +66,12 @@ export default function LoginPage() {
                   <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
                     <Lock className="h-5 w-5" />
                   </div>
-                  <Input 
-                    type={showPassword ? "text" : "password"} 
+                  <Input
+                    type={showPassword ? "text" : "password"}
                     name="password"
                     required
-                    placeholder="••••••••" 
-                    className="pr-10 pl-10 bg-white" 
+                    placeholder="••••••••"
+                    className="pr-10 pl-10 bg-white"
                     dir="ltr"
                   />
                   <button
@@ -105,7 +105,7 @@ export default function LoginPage() {
           </CardContent>
 
         </Card>
-        
+
         <p className="text-center text-sm text-gray-500 mt-6">
           © {new Date().getFullYear()} البيرق. جميع الحقوق محفوظة.
         </p>

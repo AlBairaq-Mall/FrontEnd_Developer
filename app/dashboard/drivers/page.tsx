@@ -7,10 +7,8 @@ import { Plus, Search, Truck, Map, Wallet } from "lucide-react";
 
 export default function DriversPage() {
   const drivers = [
-    { id: 1, name: "عمر خالد", phone: "0501234567", branch: "فرع الملقا", activeOrders: 2, wallet: "350.00 ر.س", status: "متصل", statusVariant: "success" as const },
-    { id: 2, name: "سعد عبد الرحمن", phone: "0507654321", branch: "فرع الملقا", activeOrders: 0, wallet: "0.00 ر.س", status: "غير متصل", statusVariant: "warning" as const },
-    { id: 3, name: "محمد علي", phone: "0559988776", branch: "فرع العليا", activeOrders: 5, wallet: "1200.00 ر.س", status: "في الطريق", statusVariant: "success" as const },
-    { id: 4, name: "فهد ناصر", phone: "0543322111", branch: "فرع النرجس", activeOrders: 0, wallet: "50.00 ر.س", status: "محظور", statusVariant: "destructive" as const },
+    { id: 1, name: "محمد أحمد", phone: "0501234567", branch: "فرع ", activeOrders: 2, wallet: "350.00 ر.س", status: "متصل", statusVariant: "success" as const },
+   
   ];
 
   return (
@@ -49,7 +47,7 @@ export default function DriversPage() {
             </div>
           </CardContent>
         </Card>
-        <Card>
+        {/* <Card>
           <CardContent className="p-6 flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">إجمالي الكاش المعلق</p>
@@ -59,7 +57,7 @@ export default function DriversPage() {
               <Wallet className="w-6 h-6" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
 
       <Card>

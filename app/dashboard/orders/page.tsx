@@ -9,10 +9,10 @@ import Link from "next/link";
 
 export default function OrdersPage() {
   const orders = [
-    { id: "ORD-1001#", customer: "محمد أحمد", date: "2026-06-14", total: "450 ر.س", status: "جديد", statusColor: "bg-blue-100 text-blue-700" },
-    { id: "ORD-1002#", customer: "سارة خالد", date: "2026-06-14", total: "120 ر.س", status: "قيد التجهيز", statusColor: "bg-yellow-100 text-yellow-700" },
-    { id: "ORD-1003#", customer: "عبدالله فهد", date: "2026-06-13", total: "890 ر.س", status: "خرج للتوصيل", statusColor: "bg-orange-100 text-orange-700" },
-    { id: "ORD-1004#", customer: "نورة سعد", date: "2026-06-13", total: "55 ر.س", status: "تم التسليم", statusColor: "bg-green-100 text-green-700" },
+                    { id: "00000                ", customer: "محمد أحمد", date: "2026-06-14", total: "450 ر.س", status: "جديد", statusColor: "bg-blue-100 text-blue-700" },
+                    // { id: "ORD-1002#", customer: "سارة خالد", date: "2026-06-14", total: "120 ر.س", status: "قيد التجهيز", statusColor: "bg-yellow-100 text-yellow-700" },
+                    // { id: "ORD-1003#", customer: "عبدالله فهد", date: "2026-06-13", total: "890 ر.س", status: "خرج للتوصيل", statusColor: "bg-orange-100 text-orange-700" },
+                    // { id: "ORD-1004#", customer: "نورة سعد", date: "2026-06-13", total: "55 ر.س", status: "تم التسليم", statusColor: "bg-green-100 text-green-700" },
   ];
 
   return (

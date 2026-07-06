@@ -4,9 +4,9 @@ import { useState } from "react";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Upload } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
-import { deleteProduct } from "@/lib/actions/products";
+import { deleteProduct, importProducts } from "@/lib/actions/products";
 import Link from "next/link";
 
 export function ProductsClient({ products }: { products: any[] }) {
@@ -14,6 +14,27 @@ export function ProductsClient({ products }: { products: any[] }) {
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isImporting, setIsImporting] = useState(false);
+
+  const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    setIsImporting(true);
+    const res = await importProducts(formData);
+    setIsImporting(false);
+
+    if (res.success) {
+      alert("تم استيراد المنتجات بنجاح");
+      // Reset the file input
+      e.target.value = '';
+    } else {
+      alert(res.error || "حدث خطأ أثناء استيراد المنتجات");
+    }
+  };
 
   const handleOpenDeleteModal = (product: any) => {
     setSelectedProduct(product);
@@ -47,13 +68,30 @@ export function ProductsClient({ products }: { products: any[] }) {
           <h2 className="text-2xl font-bold text-gray-900">إدارة المنتجات</h2>
           <p className="text-gray-500 mt-1">إضافة وتعديل وحذف المنتجات والتحكم بالمخزون.</p>
         </div>
-        <Link 
-          href="/dashboard/products/new"
-          className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span>إضافة منتج جديد</span>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3">
+          <label className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg transition-colors cursor-pointer text-sm font-medium ${isImporting ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-green-600 text-white hover:bg-green-700'}`}>
+            {isImporting ? (
+              <div className="w-5 h-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Upload className="w-5 h-5" />
+            )}
+            <span>{isImporting ? "جاري الاستيراد..." : "استيراد من إكسل"}</span>
+            <input 
+              type="file" 
+              accept=".xlsx, .xls, .csv" 
+              className="hidden" 
+              onChange={handleImportExcel}
+              disabled={isImporting}
+            />
+          </label>
+          <Link 
+            href="/dashboard/products/new"
+            className="flex items-center justify-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors text-sm font-medium"
+          >
+            <Plus className="w-5 h-5" />
+            <span>إضافة منتج جديد</span>
+          </Link>
+        </div>
       </div>
 
       <Card>

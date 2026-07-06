@@ -63,3 +63,23 @@ export async function deleteProduct(id: string | number) {
     return { success: false, error: "An unexpected error occurred." };
   }
 }
+
+export async function importProducts(formData: FormData) {
+  try {
+    const response = await fetchApi(`/products/import`, {
+      method: "POST",
+      body: formData,
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return { success: false, error: errorData.message || "Failed to import products" };
+    }
+
+    revalidatePath("/dashboard/products");
+    return { success: true };
+  } catch (error) {
+    console.error("Error importing products:", error);
+    return { success: false, error: "An unexpected error occurred." };
+  }
+}
