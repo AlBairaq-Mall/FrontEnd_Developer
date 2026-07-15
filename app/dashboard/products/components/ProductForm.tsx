@@ -20,14 +20,19 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
   
   // State for dynamic units array
   // If editing, map existing units, else start with one empty unit
-  const [units, setUnits] = useState<{ id: string; unit_id: string; quantity: string }[]>(
+  const [units, setUnits] = useState<{ id: string; unit_id: string; quantity: string; price: string }[]>(
     initialData?.units?.length > 0
-      ? initialData.units.map((u: any, idx: number) => ({ id: Math.random().toString(), unit_id: u.id.toString(), quantity: u.quantity.toString() }))
-      : [{ id: Math.random().toString(), unit_id: "", quantity: "1" }]
+      ? initialData.units.map((u: any, idx: number) => ({
+          id: Math.random().toString(),
+          unit_id: u.id.toString(),
+          quantity: u.quantity.toString(),
+          price: u.pivot?.price ? u.pivot.price.toString() : (u.price ? u.price.toString() : "")
+        }))
+      : [{ id: Math.random().toString(), unit_id: "", quantity: "1", price: "" }]
   );
 
   const addUnit = () => {
-    setUnits([...units, { id: Math.random().toString(), unit_id: "", quantity: "1" }]);
+    setUnits([...units, { id: Math.random().toString(), unit_id: "", quantity: "1", price: "" }]);
   };
 
   const removeUnit = (idToRemove: string) => {
@@ -36,7 +41,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
     }
   };
 
-  const updateUnitField = (id: string, field: "unit_id" | "quantity", value: string) => {
+  const updateUnitField = (id: string, field: "unit_id" | "quantity" | "price", value: string) => {
     setUnits(units.map(u => (u.id === id ? { ...u, [field]: value } : u)));
   };
 
@@ -65,6 +70,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
       if (unit.unit_id) {
         formData.append(`units[${index}][unit_id]`, unit.unit_id);
         formData.append(`units[${index}][quantity]`, unit.quantity);
+        formData.append(`units[${index}][price]`, unit.price);
       }
     });
 
@@ -154,7 +160,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                       ))}
                     </select>
                   </div>
-                  <div className="w-32">
+                  <div className="w-28">
                     <label className="block text-xs font-medium mb-1 text-gray-600">الكمية المقابلة</label>
                     <Input 
                       type="number" 
@@ -162,6 +168,18 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                       step="0.01"
                       value={unit.quantity}
                       onChange={(e) => updateUnitField(unit.id, "quantity", e.target.value)}
+                      required
+                    />
+                  </div>
+                  <div className="w-28">
+                    <label className="block text-xs font-medium mb-1 text-gray-600">سعر الوحدة (ر.س)</label>
+                    <Input 
+                      type="number" 
+                      min="0"
+                      step="0.01"
+                      value={unit.price}
+                      onChange={(e) => updateUnitField(unit.id, "price", e.target.value)}
+                      placeholder="0.00"
                       required
                     />
                   </div>

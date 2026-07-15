@@ -1,109 +1,55 @@
-"use client";
+import { fetchApi } from "@/lib/api";
+import { CustomersClient } from "./components/CustomersClient";
+import { Pagination } from "@/components/ui/Pagination";
 
-import { Card } from "@/components/ui/Card";
-import { Badge } from "@/components/ui/Badge";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { Input } from "@/components/ui/Input";
-import { Edit, Trash2, Ban, CheckCircle } from "lucide-react";
+export const metadata = {
+  title: "المستخدمين | لوحة التحكم",
+};
 
-export default function CustomersPage() {
-  const customers = [
-    {
-      name: "أحمد محمد",
-      id: "CUST-1001",
-      email: "ahmed@example.com",
-      phone: "+966 50 123 4567",
-      orders: "15 طلب",
-      spent: "2500 ر.س",
-      joinDate: "2023/8/14",
-      status: "نشط",
-      statusColor: "success" as const,
-      avatarBg: "bg-green-100 text-green-700",
-      initial: "أ",
-    },
-   
-  ];
+export default async function CustomersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ page?: string; search?: string }>;
+}) {
+  const params = await searchParams;
+  const page = params.page || "1";
+  const search = params.search || "";
+
+  let data = [];
+  let meta = null;
+
+  try {
+    // Construct query params
+    const query = new URLSearchParams();
+    query.set("page", page);
+    if (search) {
+      query.set("search", search);
+    }
+
+    const res = await fetchApi(`/users?${query.toString()}`);
+    if (res.ok) {
+      const json = await res.json();
+      data = json.data || [];
+      meta = json.meta || null;
+    } else {
+      console.error("Failed to fetch users, status:", res.status);
+    }
+  } catch (error) {
+    console.error("Failed to fetch users:", error);
+  }
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">العملاء</h2>
-        <p className="text-gray-500 mt-1">سجل العملاء وإدارة الحسابات (حظر/تفعيل).</p>
+        <h2 className="text-2xl font-bold text-gray-900">العملاء / المستخدمين</h2>
+        <p className="text-gray-500 mt-1">سجل المستخدمين وإدارة الحسابات (حظر/تفعيل).</p>
       </div>
 
-      <Card>
-        <div className="p-4 border-b border-gray-100">
-          <div className="max-w-md">
-            <Input icon placeholder="ابحث عن عميل بالاسم أو الجوال..." />
-          </div>
-        </div>
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>العميل</TableHead>
-              <TableHead>معلومات الاتصال</TableHead>
-              <TableHead>الطلبات / الإنفاق</TableHead>
-              <TableHead>تاريخ الانضمام</TableHead>
-              <TableHead>الحالة</TableHead>
-              <TableHead>إجراءات</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {customers.map((customer, i) => (
-              <TableRow key={i}>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0 ${customer.avatarBg}`}>
-                      {customer.initial}
-                    </div>
-                    <div>
-                      <div className="font-bold text-gray-900">{customer.name}</div>
-                      <div className="text-sm text-gray-500">{customer.id}</div>
-                    </div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="text-sm">
-                    <div className="text-gray-500">{customer.email}</div>
-                    <div className="text-gray-500 mt-1" dir="ltr">{customer.phone}</div>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <div className="text-sm text-gray-600">
-                    <div>{customer.orders}</div>
-                    <div className="font-bold text-brand mt-1">{customer.spent}</div>
-                  </div>
-                </TableCell>
-                <TableCell className="text-gray-500 text-sm">
-                  {customer.joinDate}
-                </TableCell>
-                <TableCell>
-                  <Badge variant={customer.statusColor}>{customer.status}</Badge>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-3">
-                    {customer.status === "نشط" ? (
-                      <button className="text-gray-400 hover:text-red-500 transition-colors" title="حظر العميل">
-                        <Ban className="w-4 h-4" />
-                      </button>
-                    ) : (
-                      <button className="text-gray-400 hover:text-green-500 transition-colors" title="تفعيل العميل">
-                        <CheckCircle className="w-4 h-4" />
-                      </button>
-                    )}
-                    <button className="text-gray-400 hover:text-blue-500 transition-colors" title="تعديل">
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button className="text-gray-400 hover:text-red-500 transition-colors" title="حذف">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </Card>
+      <CustomersClient users={data} />
+      
+      {meta && meta.last_page > 1 && (
+        <Pagination meta={meta} />
+      )}
     </div>
   );
 }

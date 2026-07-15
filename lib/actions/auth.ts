@@ -39,22 +39,41 @@ export async function login(prevState: any, formData: FormData) {
       };
     }
 
-    if (data.access_token) {
+    const tokenData = data.token?.original;
+    const accessToken = tokenData?.access_token;
+
+    if (accessToken) {
+      const userRole = data.user?.role;
+
+      if (userRole !== "admin") {
+        return {
+          error: "عذراً، غير مسموح لك بالوصول للوحة التحكم. يجب أن تكون مديراً (Admin).",
+        };
+      }
+
       const cookieStore = await cookies();
 
-      cookieStore.set("auth_token", data.access_token, {
+      cookieStore.set("auth_token", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: data.expires_in || 3600,
+        maxAge: tokenData.expires_in || 3600,
         path: "/",
       });
 
-      cookieStore.set("auth_token_type", data.token_type || "bearer", {
+      cookieStore.set("auth_token_type", tokenData.token_type || "bearer", {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
         sameSite: "lax",
-        maxAge: data.expires_in || 3600,
+        maxAge: tokenData.expires_in || 3600,
+        path: "/",
+      });
+
+      cookieStore.set("user_role", userRole, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: tokenData.expires_in || 3600,
         path: "/",
       });
 
@@ -80,6 +99,7 @@ export async function logout() {
   const cookieStore = await cookies();
   cookieStore.delete("auth_token");
   cookieStore.delete("auth_token_type");
+  cookieStore.delete("user_role");
 
   revalidatePath("/", "layout");
   redirect("/");

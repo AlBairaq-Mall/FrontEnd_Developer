@@ -1,0 +1,408 @@
+"use client";
+
+import { useState, useTransition } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { Card } from "@/components/ui/Card";
+import { Badge } from "@/components/ui/Badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
+import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Modal } from "@/components/ui/Modal";
+import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin } from "lucide-react";
+import { createUser, updateUser, deleteUser } from "../actions";
+
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  email_verified_at: string | null;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CustomersClientProps {
+  users: User[];
+}
+
+export function CustomersClient({ users }: CustomersClientProps) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
+
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+
+  // Form State
+  const [isFormOpen, setIsFormOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    role: "customer",
+    is_active: true,
+  });
+  const [formError, setFormError] = useState("");
+
+  // Delete State
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [deleteError, setDeleteError] = useState("");
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchQuery(value);
+    const params = new URLSearchParams(searchParams);
+    if (value) {
+      params.set("search", value);
+    } else {
+      params.delete("search");
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const getStatusColor = (isActive: boolean): "success" | "danger" => isActive ? "success" : "danger";
+  const getInitial = (name: string) => name ? name.charAt(0).toUpperCase() : "?";
+  const getAvatarBg = (isActive: boolean) => isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700";
+
+  const openAddForm = () => {
+    setEditingUser(null);
+    setFormData({ name: "", email: "", password: "", password_confirmation: "", role: "customer", is_active: true });
+    setFormError("");
+    setIsFormOpen(true);
+  };
+
+  const openEditForm = (user: User) => {
+    setEditingUser(user);
+    setFormData({
+      name: user.name,
+      email: user.email,
+      password: "", // Empty password so it only updates if provided
+      password_confirmation: "",
+      role: user.role,
+      is_active: user.is_active,
+    });
+    setFormError("");
+    setIsFormOpen(true);
+  };
+
+  const openDeleteConfirm = (user: User) => {
+    setUserToDelete(user);
+    setDeleteError("");
+    setIsDeleteOpen(true);
+  };
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError("");
+
+    if (formData.password && formData.password !== formData.password_confirmation) {
+      setFormError("كلمة المرور وتأكيدها غير متطابقين");
+      return;
+    }
+    
+    startTransition(async () => {
+      let result;
+      if (editingUser) {
+        result = await updateUser(editingUser.id, formData);
+      } else {
+        result = await createUser(formData);
+      }
+
+      if (result?.error) {
+        setFormError(result.error);
+      } else {
+        setIsFormOpen(false);
+      }
+    });
+  };
+
+  const handleDelete = async () => {
+    if (!userToDelete) return;
+    setDeleteError("");
+    
+    startTransition(async () => {
+      const result = await deleteUser(userToDelete.id);
+      if (result?.error) {
+        setDeleteError(result.error);
+      } else {
+        setIsDeleteOpen(false);
+        setUserToDelete(null);
+      }
+    });
+  };
+
+  const toggleUserStatus = async (user: User) => {
+    startTransition(async () => {
+      await updateUser(user.id, {
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        is_active: !user.is_active,
+      });
+    });
+  };
+
+  return (
+    <>
+      <Card>
+        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+          <div className="w-full max-w-md">
+            <Input 
+              icon 
+              placeholder="ابحث عن مستخدم بالاسم أو البريد..." 
+              value={searchQuery}
+              onChange={handleSearch}
+            />
+          </div>
+          <Button onClick={openAddForm} className="shrink-0 flex items-center gap-2">
+            <Plus className="w-4 h-4" />
+            إضافة مستخدم
+          </Button>
+        </div>
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>المستخدم</TableHead>
+                <TableHead>البريد الإلكتروني</TableHead>
+                <TableHead>الدور</TableHead>
+                <TableHead>تاريخ الانضمام</TableHead>
+                <TableHead>الحالة</TableHead>
+                <TableHead>إجراءات</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                    لا يوجد مستخدمين لعرضهم
+                  </TableCell>
+                </TableRow>
+              ) : (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-lg shrink-0 ${getAvatarBg(user.is_active)}`}>
+                          {getInitial(user.name)}
+                        </div>
+                        <div>
+                          <div className="font-bold text-gray-900">{user.name}</div>
+                          <div className="text-sm text-gray-500">#{user.id}</div>
+                        </div>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm text-gray-500">{user.email}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="text-sm font-medium text-gray-600 capitalize">
+                        {user.role === 'admin' ? 'مدير' : user.role === 'customer_service' || user.role === 'customer-service' ? 'خدمة عملاء' : 'مستخدم'}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-gray-500 text-sm">
+                      {new Date(user.created_at).toLocaleDateString('ar-EG', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={getStatusColor(user.is_active)}>
+                        {user.is_active ? "نشط" : "محظور"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-3">
+                        {user.is_active ? (
+                          <button 
+                            onClick={() => toggleUserStatus(user)}
+                            disabled={isPending}
+                            className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50" 
+                            title="حظر المستخدم"
+                          >
+                            <Ban className="w-4 h-4" />
+                          </button>
+                        ) : (
+                          <button 
+                            onClick={() => toggleUserStatus(user)}
+                            disabled={isPending}
+                            className="text-gray-400 hover:text-green-500 transition-colors disabled:opacity-50" 
+                            title="تفعيل المستخدم"
+                          >
+                            <CheckCircle className="w-4 h-4" />
+                          </button>
+                        )}
+                        <button 
+                          onClick={() => router.push(`/dashboard/customers/${user.id}/locations`)}
+                          disabled={isPending}
+                          className="text-gray-400 hover:text-purple-500 transition-colors disabled:opacity-50" 
+                          title="عناوين العميل"
+                        >
+                          <MapPin className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => openEditForm(user)}
+                          disabled={isPending}
+                          className="text-gray-400 hover:text-blue-500 transition-colors disabled:opacity-50" 
+                          title="تعديل"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => openDeleteConfirm(user)}
+                          disabled={isPending}
+                          className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50" 
+                          title="حذف"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
+
+      {/* Add/Edit Form Modal */}
+      <Modal 
+        isOpen={isFormOpen} 
+        onClose={() => !isPending && setIsFormOpen(false)} 
+        title={editingUser ? "تعديل مستخدم" : "إضافة مستخدم جديد"}
+      >
+        <form onSubmit={handleFormSubmit} className="space-y-4">
+          {formError && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100">
+              {formError}
+            </div>
+          )}
+          
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
+            <input 
+              required
+              className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
+              value={formData.name}
+              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              disabled={isPending}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
+            <input 
+              type="email"
+              required
+              className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
+              value={formData.email}
+              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              disabled={isPending}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              كلمة المرور {editingUser && <span className="text-gray-400 font-normal">(اتركه فارغاً إذا لم ترد تغييره)</span>}
+            </label>
+            <input 
+              type="password"
+              required={!editingUser}
+              className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
+              value={formData.password}
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              disabled={isPending}
+            />
+          </div>
+
+          {(!editingUser || formData.password) && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                تأكيد كلمة المرور
+              </label>
+              <input 
+                type="password"
+                required={!editingUser || formData.password.length > 0}
+                className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
+                value={formData.password_confirmation}
+                onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                disabled={isPending}
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
+            <select 
+              className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
+              value={formData.role}
+              onChange={(e) => setFormData({...formData, role: e.target.value})}
+              disabled={isPending}
+            >
+              <option value="customer">مستخدم / عميل</option>
+              <option value="customer_service">خدمة عملاء</option>
+              <option value="admin">مدير النظام</option>
+            </select>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="is_active" 
+              checked={formData.is_active}
+              onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
+              disabled={isPending}
+              className="rounded border-gray-300 text-brand focus:ring-brand"
+            />
+            <label htmlFor="is_active" className="text-sm font-medium text-gray-700">مستخدم نشط</label>
+          </div>
+
+          <div className="pt-4 flex items-center justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setIsFormOpen(false)} disabled={isPending}>
+              إلغاء
+            </Button>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+              {editingUser ? "حفظ التعديلات" : "إضافة المستخدم"}
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Delete Confirmation Modal */}
+      <Modal
+        isOpen={isDeleteOpen}
+        onClose={() => !isPending && setIsDeleteOpen(false)}
+        title="تأكيد الحذف"
+      >
+        <div className="space-y-4">
+          {deleteError && (
+            <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm border border-red-100">
+              {deleteError}
+            </div>
+          )}
+          <p className="text-gray-600">
+            هل أنت متأكد من رغبتك في حذف المستخدم <span className="font-bold">{userToDelete?.name}</span>؟
+            لا يمكن التراجع عن هذا الإجراء.
+          </p>
+          <div className="pt-4 flex items-center justify-end gap-3">
+            <Button type="button" variant="ghost" onClick={() => setIsDeleteOpen(false)} disabled={isPending}>
+              إلغاء
+            </Button>
+            <Button type="button" variant="danger" onClick={handleDelete} disabled={isPending}>
+              {isPending && <Loader2 className="w-4 h-4 ml-2 animate-spin" />}
+              حذف
+            </Button>
+          </div>
+        </div>
+      </Modal>
+    </>
+  );
+}
