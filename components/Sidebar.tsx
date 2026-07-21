@@ -23,7 +23,8 @@ import {
   ShieldAlert,
   ChevronDown,
   ChevronUp,
-  Percent
+  Percent,
+  ShoppingBasket
 } from "lucide-react";
 import { useState, useTransition } from "react";
 
@@ -59,6 +60,7 @@ export default function Sidebar() {
       title: "المبيعات",
       links: [
         { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
+        { href: "/dashboard/cart", label: "السلة", icon: ShoppingBasket },
       ]
     },
     {

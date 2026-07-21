@@ -8,7 +8,7 @@ export async function createLocation(data: {
   title: string;
   address: string;
   latitude?: number;
-  longitude?: number;
+  longitude?: number; 
   is_default?: boolean;
 }) {
   try {
@@ -16,7 +16,7 @@ export async function createLocation(data: {
       method: "POST",
       body: JSON.stringify(data),
     });
-
+console.log(response)
     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       return { error: errorData?.message || "فشل في إنشاء العنوان" };
@@ -35,7 +35,7 @@ export async function updateLocation(
   userId: number,
   data: {
     user_id: number;
-    title: string;
+    title: string; 
     address: string;
     latitude?: number;
     longitude?: number;

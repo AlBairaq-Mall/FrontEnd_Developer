@@ -45,7 +45,10 @@ export default async function CustomerLocationsPage({
     const res = await fetchApi(`/locations-admin?${query.toString()}`);
     if (res.ok) {
       const json = await res.json();
-      data = json.data || [];
+      const allLocations = json.data || [];
+      // الفلترة هنا تضمن أنه حتى لو الـ API أرجع كل العناوين لكل المستخدمين،
+      // سنقوم فقط باختيار العناوين التي يطابق فيها user.id رقم العميل الحالي
+      data = allLocations.filter((loc: any) => loc.user?.id?.toString() === userId.toString());
       meta = json.meta || null;
     } else {
       console.error("Failed to fetch locations, status:", res.status);

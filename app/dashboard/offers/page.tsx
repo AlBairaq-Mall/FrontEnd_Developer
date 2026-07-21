@@ -1,107 +1,208 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { useEffect, useState } from "react";
+import { Card } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { Badge } from "@/components/ui/Badge";
-import { Plus, Search, Percent, Edit, Trash2, Power } from "lucide-react";
-import Image from "next/image";
+import { Button } from "@/components/ui/Button";
+import { Plus, Trash, Edit, Eye } from "lucide-react";
+import { Modal } from "@/components/ui/Modal";
+import { getOffers, deleteOffer, Offer } from "@/lib/actions/offers";
+import { OfferFormModal } from "./components/OfferFormModal";
+import Link from "next/link";
 
 export default function OffersPage() {
-  const offers = [
-    { id: 1, product: "قهوة", image: "https://images.unsplash.com/photo-1559525839-b184a4d698c7?w=100&q=80", discount: "20%", startDate: "1  2026", endDate: "30  2026", status: "نشط", statusVariant: "success" as const },
-    ];
+  const [offers, setOffers] = useState<Offer[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
+  
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
+  const [deletingId, setDeletingId] = useState<string | number | null>(null);
+
+  async function loadOffers() {
+    setLoading(true);
+    const res = await getOffers();
+    if (res.success && res.data) {
+      // Handle array or pagination wrapper
+      const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
+      setOffers(dataArray);
+    }
+    setLoading(false);
+  }
+
+  useEffect(() => {
+    loadOffers();
+  }, []);
+
+  const handleOpenDeleteModal = (offer: Offer) => {
+    setOfferToDelete(offer);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDeleteOffer = async () => {
+    if (!offerToDelete) return;
+    setDeletingId(offerToDelete.id);
+    const res = await deleteOffer(offerToDelete.id);
+    if (res.success) {
+      loadOffers();
+      setIsDeleteModalOpen(false);
+      setOfferToDelete(null);
+    } else {
+      alert(res.error || "حدث خطأ أثناء حذف العرض");
+    }
+    setDeletingId(null);
+  };
+
+  const openAddModal = () => {
+    setSelectedOffer(null);
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (offer: Offer) => {
+    setSelectedOffer(offer);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">عروض المنتجات</h1>
-          <p className="text-gray-500 mt-1">إدارة العروض الخاصة وتخفيضات المنتجات وتحديد فترات سريانها.</p>
-        </div>
-        <button className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors">
+      <div className="flex items-center justify-between">
+        <h2 className="text-2xl font-bold text-gray-900">إدارة العروض</h2>
+        <Button onClick={openAddModal} className="gap-2">
           <Plus className="w-5 h-5" />
-          <span>إضافة عرض جديد</span>
-        </button>
+          إضافة عرض
+        </Button>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardContent className="p-6 flex items-center justify-between">
-            <div>
-              <p className="text-sm font-medium text-gray-500 mb-1">العروض النشطة</p>
-              <h3 className="text-3xl font-bold text-gray-900">2</h3>
-            </div>
-            <div className="w-12 h-12 rounded-xl bg-brand/10 flex items-center justify-center text-brand">
-              <Percent className="w-6 h-6" />
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <OfferFormModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={() => loadOffers()}
+        offerToEdit={selectedOffer}
+      />
 
       <Card>
-        <CardHeader>
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
-            <h3 className="text-lg font-bold text-gray-800">قائمة العروض</h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث عن منتج..."
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-80"
-              />
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            </div>
-          </div>
-        </CardHeader>
-        <div className="p-0 overflow-x-auto">
-          <Table>
-            <TableHeader>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>المنتج / الوحدة</TableHead>
+              <TableHead>نوع الخصم</TableHead>
+              <TableHead>السعر الأصلي</TableHead>
+              <TableHead>السعر بعد العرض</TableHead>
+              <TableHead>تاريخ الصلاحية</TableHead>
+              <TableHead className="text-center">الحالة</TableHead>
+              <TableHead className="text-center">الإجراءات</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
               <TableRow>
-                <TableHead>المنتج</TableHead>
-                <TableHead>نسبة الخصم</TableHead>
-                <TableHead>تاريخ البداية</TableHead>
-                <TableHead>تاريخ النهاية</TableHead>
-                <TableHead>الحالة</TableHead>
-                <TableHead>الإجراءات</TableHead>
+                <TableCell colSpan={7} className="text-center py-8 text-gray-500">جاري تحميل العروض...</TableCell>
               </TableRow>
-            </TableHeader>
-            <TableBody>
-              {offers.map((offer) => (
-                <TableRow key={offer.id}>
+            ) : offers.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={7} className="text-center py-12 text-gray-500 flex-col items-center gap-4">
+                  <div className="text-lg font-medium">لا توجد عروض حالياً</div>
+                  <p className="text-sm text-gray-400">يمكنك إضافة عرض جديد من خلال الزر في الأعلى.</p>
+                </TableCell>
+              </TableRow>
+            ) : (
+              offers.map((offer, i) => (
+                <TableRow key={offer.id || i}>
                   <TableCell>
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 overflow-hidden relative shrink-0">
-                        <Image src={offer.image} alt={offer.product} fill className="object-cover" />
-                      </div>
-                      <span className="font-medium text-gray-900">{offer.product}</span>
+                    <div className="font-bold text-gray-900">
+                      {offer.product?.name_ar || offer.product?.name_en || `منتج غير معروف`}
+                    </div>
+                    <div className="text-sm text-gray-500">
+                      الوحدة: {offer.unit?.name_ar || offer.unit?.name_en || `وحدة غير معروفة`}
                     </div>
                   </TableCell>
                   <TableCell>
-                    <span className="font-bold text-brand bg-brand/10 px-2 py-1 rounded-md">{offer.discount}</span>
+                    {offer.type === "percentage" ? (
+                      <span className="inline-flex items-center px-2 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded">خصم {offer.value}%</span>
+                    ) : (
+                      <span className="inline-flex items-center px-2 py-1 bg-purple-50 text-purple-700 text-xs font-bold rounded">خصم ثابت {offer.value}</span>
+                    )}
                   </TableCell>
-                  <TableCell className="text-gray-500">{offer.startDate}</TableCell>
-                  <TableCell className="text-gray-500">{offer.endDate}</TableCell>
+                  <TableCell className="line-through text-gray-400">{offer.original_price} ر.س</TableCell>
+                  <TableCell className="font-bold text-brand">{offer.final_price} ر.س</TableCell>
                   <TableCell>
-                    <Badge variant={offer.statusVariant}>{offer.status}</Badge>
+                    <div className="text-sm">من: <span className="font-medium">{offer.start_date.split(" ")[0]}</span></div>
+                    <div className="text-sm">إلى: <span className="font-medium">{offer.end_date.split(" ")[0]}</span></div>
+                  </TableCell>
+                  <TableCell className="text-center">
+                    {offer.is_active ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        نشط
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                        غير نشط
+                      </span>
+                    )}
                   </TableCell>
                   <TableCell>
-                    <div className="flex items-center gap-2">
-                      <button className="p-1.5 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors" title="تعديل">
+                    <div className="flex items-center justify-center gap-2">
+                      <Link 
+                        href={`/dashboard/offers/${offer.id}`}
+                        className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        title="تفاصيل العرض"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Link>
+                      <button 
+                        onClick={() => openEditModal(offer)}
+                        className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="تعديل العرض"
+                      >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button className="p-1.5 text-gray-400 hover:text-orange-500 hover:bg-orange-50 rounded-md transition-colors" title="إيقاف">
-                        <Power className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors" title="حذف">
-                        <Trash2 className="w-4 h-4" />
+                      <button 
+                        onClick={() => handleOpenDeleteModal(offer)}
+                        disabled={deletingId === offer.id}
+                        className={`p-2 rounded-lg transition-colors ${
+                          deletingId === offer.id 
+                            ? "text-gray-400 cursor-not-allowed" 
+                            : "text-gray-400 hover:text-red-600 hover:bg-red-50"
+                        }`}
+                        title="حذف العرض"
+                      >
+                        <Trash className="w-4 h-4" />
                       </button>
                     </div>
                   </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </Card>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="تأكيد الحذف"
+      >
+        <div className="p-4" dir="rtl">
+          <p className="mb-6">هل أنت متأكد من رغبتك في حذف العرض للمنتج <strong>{offerToDelete?.product?.name_ar || offerToDelete?.product?.name_en}</strong>؟ لا يمكن التراجع عن هذا الإجراء.</p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={confirmDeleteOffer}
+              disabled={deletingId !== null}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {deletingId !== null ? "جاري الحذف..." : "حذف العرض"}
+            </button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
