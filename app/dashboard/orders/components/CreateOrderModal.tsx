@@ -77,14 +77,21 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
   };
 
   const handleItemChange = (index: number, field: string, value: string | number) => {
-    const newItems = [...items];
-    newItems[index] = { ...newItems[index], [field]: value } as any;
-    setItems(newItems);
+    setItems(prevItems => {
+      const newItems = [...prevItems];
+      newItems[index] = { ...newItems[index], [field]: value } as any;
+      return newItems;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+
+    if (!selectedUserId) {
+      setError("الرجاء اختيار العميل.");
+      return;
+    }
 
     if (!locationId) {
       setError("الرجاء اختيار العنوان (الموقع).");
@@ -105,6 +112,7 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
 
     setSubmitting(true);
     const payload: CreateOrderData = {
+      user_id: selectedUserId,
       location_id: locationId,
       payment_method: paymentMethod,
       delivery_fee: deliveryFee || 0,
@@ -211,7 +219,7 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
                       >
                         <option value="">-- اختر المنتج --</option>
                         {options.products.map((p: any) => (
-                          <option key={p.id} value={p.id}>{p.name || p.title || `منتج #${p.id}`}</option>
+                          <option key={p.id} value={p.id}>{p.name_ar || p.name_en || p.name || p.title || `منتج #${p.id}`}</option>
                         ))}
                       </select>
                     </div>

@@ -3,6 +3,8 @@ import { ProductForm } from "../components/ProductForm";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export const metadata = {
   title: "إضافة منتج | لوحة التحكم",
 };

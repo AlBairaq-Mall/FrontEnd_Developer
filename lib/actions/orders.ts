@@ -83,6 +83,7 @@ export async function getOrder(id: string | number) {
 }
 
 export interface CreateOrderData {
+  user_id: number | string;
   location_id: number | string;
   payment_method: "cash" | "card" | string;
   delivery_fee?: number;
@@ -124,7 +125,7 @@ export async function getOrderOptions() {
 
 export async function createOrder(data: CreateOrderData) {
   try {
-    const response = await fetchApi("/orders", {
+    const response = await fetchApi("/orders/admin-store", {
       method: "POST",
       body: JSON.stringify(data),
     });

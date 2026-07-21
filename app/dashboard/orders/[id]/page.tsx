@@ -58,7 +58,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard/orders" className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors">
+          <Link href="/dashboard/orders" className="p-2 text-gray-500 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors print:hidden">
             <ArrowRight className="w-5 h-5" />
           </Link>
           <div>
@@ -69,8 +69,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             <p className="text-gray-500 mt-1">تم الإنشاء في {new Date(order.created_at).toLocaleString("ar-SA")}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors">
+        <div className="flex items-center gap-2 print:hidden">
+          <button 
+            onClick={() => window.print()}
+            className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
+          >
             <Printer className="w-5 h-5" />
             <span>طباعة الفاتورة</span>
           </button>
@@ -81,10 +84,10 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
-          <Card>
-            <CardHeader>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 print:flex print:flex-col">
+        <div className="lg:col-span-2 space-y-6 print:w-full">
+          <Card className="print:shadow-none print:border-none print:m-0 print:p-0">
+            <CardHeader className="print:px-0">
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <Package className="w-5 h-5" />
                 منتجات الطلب
@@ -109,7 +112,8 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     orderItems.map((item, index) => (
                       <TableRow key={item.id || index}>
                         <TableCell className="font-bold text-gray-900">
-                          {item.product?.name || item.product?.title || `منتج #${item.product_id}`}
+                          {item.product?.name_ar || item.product?.name_en || item.product?.name || item.product?.title || `منتج #${item.product_id}`}
+                          {item.unit && <span className="text-gray-500 text-xs mr-2 font-normal">({item.unit?.name_ar || item.unit?.name})</span>}
                         </TableCell>
                         <TableCell>{item.price} ر.س</TableCell>
                         <TableCell>{item.quantity}</TableCell>
@@ -145,7 +149,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           </Card>
 
           {order.notes && (
-            <Card>
+            <Card className="print:hidden">
               <CardHeader>
                 <h3 className="text-lg font-bold text-gray-800">الملاحظات</h3>
               </CardHeader>
@@ -155,7 +159,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             </Card>
           )}
 
-          <Card>
+          <Card className="print:hidden">
             <CardHeader>
               <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
                 <Truck className="w-5 h-5" />
@@ -190,7 +194,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           </Card>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-6 print:hidden">
           <Card>
             <CardHeader>
               <h3 className="text-lg font-bold text-gray-800">معلومات العميل</h3>
