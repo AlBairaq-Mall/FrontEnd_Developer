@@ -8,8 +8,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin } from "lucide-react";
+import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin, Filter } from "lucide-react";
 import { createUser, updateUser, deleteUser } from "../actions";
+import { Select } from "@/components/ui/Select";
 
 interface User {
   id: number;
@@ -52,17 +53,20 @@ export function CustomersClient({ users }: CustomersClientProps) {
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [deleteError, setDeleteError] = useState("");
 
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchQuery(value);
-    const params = new URLSearchParams(searchParams);
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
     if (value) {
-      params.set("search", value);
+      params.set(key, value);
     } else {
-      params.delete("search");
+      params.delete(key);
     }
     params.set("page", "1");
     router.replace(`${pathname}?${params.toString()}`);
+  };
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+    handleFilterChange("search", e.target.value);
   };
 
   const getStatusColor = (isActive: boolean): "success" | "danger" => isActive ? "success" : "danger";
@@ -151,13 +155,38 @@ export function CustomersClient({ users }: CustomersClientProps) {
     <>
       <Card>
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-          <div className="w-full max-w-md">
-            <Input 
-              icon 
-              placeholder="ابحث عن مستخدم بالاسم أو البريد..." 
-              value={searchQuery}
-              onChange={handleSearch}
-            />
+          <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto flex-1">
+            <Select 
+              icon={<Filter className="w-4 h-4" />}
+              value={searchParams.get("role") || ""}
+              onChange={(e) => handleFilterChange("role", e.target.value)}
+              wrapperClassName="w-full sm:w-auto"
+            >
+              <option value="">جميع الأدوار</option>
+              <option value="admin">مدير النظام</option>
+              <option value="customer_service">خدمة العملاء</option>
+              <option value="customer">مستخدم</option>
+            </Select>
+            
+            <Select 
+              icon={<Filter className="w-4 h-4" />}
+              value={searchParams.get("status") || ""}
+              onChange={(e) => handleFilterChange("status", e.target.value)}
+              wrapperClassName="w-full sm:w-auto"
+            >
+              <option value="">جميع الحالات</option>
+              <option value="1">نشط</option>
+              <option value="0">محظور</option>
+            </Select>
+
+            <div className="w-full max-w-md">
+              <Input 
+                icon 
+                placeholder="ابحث عن مستخدم بالاسم أو البريد..." 
+                value={searchQuery}
+                onChange={handleSearch}
+              />
+            </div>
           </div>
           <Button onClick={openAddForm} className="shrink-0 flex items-center gap-2">
             <Plus className="w-4 h-4" />

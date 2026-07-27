@@ -9,11 +9,13 @@ export const metadata = {
 export default async function CustomersPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; search?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; role?: string; status?: string }>;
 }) {
   const params = await searchParams;
   const page = params.page || "1";
   const search = params.search || "";
+  const role = params.role;
+  const status = params.status;
 
   let data = [];
   let meta = null;
@@ -22,9 +24,9 @@ export default async function CustomersPage({
     // Construct query params
     const query = new URLSearchParams();
     query.set("page", page);
-    if (search) {
-      query.set("search", search);
-    }
+    if (search) query.set("search", search);
+    if (role !== undefined && role !== "") query.set("role", role);
+    if (status !== undefined && status !== "") query.set("status", status);
 
     const res = await fetchApi(`/users?${query.toString()}`);
     if (res.ok) {

@@ -91,7 +91,7 @@ export async function addToCart(data: AddToCartData) {
       method: "POST",
       body: JSON.stringify(data),
     });
-    console.log("response", response);
+ 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       return {

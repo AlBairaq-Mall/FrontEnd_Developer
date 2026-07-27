@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Printer, ArrowRight, Truck, CheckCircle2, AlertCircle, Phone, MapPin, User, Package } from "lucide-react";
 import Link from "next/link";
-import { getOrder, Order } from "@/lib/actions/orders";
+import { getOrder, Order, updateOrderStatus } from "@/lib/actions/orders";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -26,6 +26,19 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (!order) return;
+    setUpdatingStatus(true);
+    const res = await updateOrderStatus(order.id, newStatus);
+    if (res.success) {
+      setOrder({ ...order, status: newStatus as any });
+    } else {
+      alert(res.error || "فشل تحديث الحالة");
+    }
+    setUpdatingStatus(false);
+  };
 
   useEffect(() => {
     async function loadOrder() {
@@ -77,10 +90,28 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
             <Printer className="w-5 h-5" />
             <span>طباعة الفاتورة</span>
           </button>
-          <button className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors">
-            <CheckCircle2 className="w-5 h-5" />
-            <span>تحديث الحالة</span>
-          </button>
+          <div className="relative">
+            <select
+              value={order.status}
+              onChange={(e) => handleStatusChange(e.target.value)}
+              disabled={updatingStatus}
+              className="appearance-none bg-brand text-white px-4 py-2 pl-4 pr-10 rounded-lg hover:bg-brand-dark transition-colors outline-none cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed font-medium text-sm w-40"
+            >
+              <option value="pending" className="text-gray-900 bg-white">قيد الانتظار</option>
+              <option value="confirmed" className="text-gray-900 bg-white">مؤكد</option>
+              <option value="processing" className="text-gray-900 bg-white">قيد التجهيز</option>
+              <option value="shipped" className="text-gray-900 bg-white">تم الشحن</option>
+              <option value="delivered" className="text-gray-900 bg-white">تم التسليم</option>
+              <option value="cancelled" className="text-gray-900 bg-white">ملغي</option>
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-white">
+              {updatingStatus ? (
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
+            </div>
+          </div>
         </div>
       </div>
 

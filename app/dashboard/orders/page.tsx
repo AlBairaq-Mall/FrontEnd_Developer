@@ -1,14 +1,16 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Eye, Plus } from "lucide-react";
+import { Eye, Plus, Filter, Users, CreditCard } from "lucide-react";
 import Link from "next/link";
-import { getOrders, Order } from "@/lib/actions/orders";
+import { getOrders, Order, getUsersList } from "@/lib/actions/orders";
 import { CreateOrderModal } from "./components/CreateOrderModal";
+import { Select } from "@/components/ui/Select";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -34,14 +36,36 @@ const getStatusName = (status: string) => {
   }
 };
 
-export default function OrdersPage() {
+function OrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentStatus = searchParams.get("status") || "";
+  const currentPaymentStatus = searchParams.get("payment_status") || "";
+  const currentUserId = searchParams.get("user_id") || "";
+  const searchQuery = searchParams.get("search") || "";
+
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
 
   async function loadOrders() {
     setLoading(true);
-    const res = await getOrders();
+    const paramsObj = Object.fromEntries(searchParams.entries());
+    const res = await getOrders(paramsObj);
     if (res.success && res.data) {
       // API might return array directly or wrapped in { data: ... }
       const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
@@ -52,6 +76,16 @@ export default function OrdersPage() {
 
   useEffect(() => {
     loadOrders();
+  }, [searchParams.toString()]);
+
+  useEffect(() => {
+    async function loadUsers() {
+      const res = await getUsersList();
+      if (res.success && res.data) {
+        setUsers(res.data);
+      }
+    }
+    loadUsers();
   }, []);
 
   return (
@@ -73,18 +107,53 @@ export default function OrdersPage() {
       />
 
       <Card>
-        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4">
-          <select className="border border-gray-300 rounded-lg px-4 py-2 bg-gray-50 text-gray-700 focus:outline-none focus:ring-2 focus:ring-brand">
-            <option>جميع الحالات</option>
-            <option>قيد الانتظار</option>
-            <option>مؤكد</option>
-            <option>قيد التجهيز</option>
-            <option>تم الشحن</option>
-            <option>تم التسليم</option>
-            <option>ملغي</option>
-          </select>
-          <div className="flex-1">
-            <Input icon placeholder="ابحث برقم الطلب، العميل..." />
+        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row flex-wrap gap-4">
+          <Select 
+            icon={<Filter className="w-4 h-4" />}
+            value={currentStatus}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            wrapperClassName="w-full sm:w-auto"
+          >
+            <option value="">حالة الطلب: الكل</option>
+            <option value="pending">قيد الانتظار</option>
+            <option value="confirmed">مؤكد</option>
+            <option value="processing">قيد التجهيز</option>
+            <option value="shipped">تم الشحن</option>
+            <option value="delivered">تم التسليم</option>
+            <option value="cancelled">ملغي</option>
+          </Select>
+          
+          <Select 
+            icon={<CreditCard className="w-4 h-4" />}
+            value={currentPaymentStatus}
+            onChange={(e) => handleFilterChange("payment_status", e.target.value)}
+            wrapperClassName="w-full sm:w-auto"
+          >
+            <option value="">حالة الدفع: الكل</option>
+            <option value="pending">معلق</option>
+            <option value="paid">مدفوع</option>
+            <option value="failed">فشل</option>
+          </Select>
+
+          <Select 
+            icon={<Users className="w-4 h-4" />}
+            value={currentUserId}
+            onChange={(e) => handleFilterChange("user_id", e.target.value)}
+            wrapperClassName="w-full sm:w-40"
+          >
+            <option value="">جميع العملاء</option>
+            {users.map(u => (
+              <option key={u.id} value={u.id}>{u.name || u.first_name}</option>
+            ))}
+          </Select>
+
+          <div className="flex-1 w-full sm:w-auto">
+            <Input 
+              icon 
+              placeholder="ابحث برقم الطلب، العميل..." 
+              value={searchQuery}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => handleFilterChange("search", e.target.value)}
+            />
           </div>
         </div>
         <Table>
@@ -132,5 +201,13 @@ export default function OrdersPage() {
         </Table>
       </Card>
     </div>
+  );
+}
+
+export default function OrdersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">جاري تحميل الطلبات...</div>}>
+      <OrdersContent />
+    </Suspense>
   );
 }

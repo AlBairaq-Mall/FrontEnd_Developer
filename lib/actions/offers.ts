@@ -38,9 +38,16 @@ export interface OfferData {
   is_active: boolean;
 }
 
-export async function getOffers() {
+export async function getOffers(params?: Record<string, string>) {
   try {
-    const response = await fetchApi("/offers", {
+    let endpoint = "/offers";
+    if (params) {
+      const query = new URLSearchParams(params).toString();
+      if (query) {
+        endpoint += `?${query}`;
+      }
+    }
+    const response = await fetchApi(endpoint, {
       method: "GET",
     });
 

@@ -16,8 +16,7 @@ export async function createLocation(data: {
       method: "POST",
       body: JSON.stringify(data),
     });
-console.log(response)
-    if (!response.ok) {
+     if (!response.ok) {
       const errorData = await response.json().catch(() => null);
       return { error: errorData?.message || "فشل في إنشاء العنوان" };
     }

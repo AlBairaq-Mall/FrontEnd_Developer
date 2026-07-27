@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Button } from "@/components/ui/Button";
@@ -9,8 +10,10 @@ import { Modal } from "@/components/ui/Modal";
 import { getOffers, deleteOffer, Offer } from "@/lib/actions/offers";
 import { OfferFormModal } from "./components/OfferFormModal";
 import Link from "next/link";
+import { Select } from "@/components/ui/Select";
+import { Filter, Tag } from "lucide-react";
 
-export default function OffersPage() {
+function OffersContent() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -21,9 +24,28 @@ export default function OffersPage() {
   const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
 
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentStatus = searchParams.get("status") || "";
+  const currentType = searchParams.get("type") || "";
+
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    router.replace(`${pathname}?${params.toString()}`);
+  };
+
   async function loadOffers() {
     setLoading(true);
-    const res = await getOffers();
+    const paramsObj = Object.fromEntries(searchParams.entries());
+    const res = await getOffers(paramsObj);
     if (res.success && res.data) {
       // Handle array or pagination wrapper
       const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
@@ -34,7 +56,7 @@ export default function OffersPage() {
 
   useEffect(() => {
     loadOffers();
-  }, []);
+  }, [searchParams.toString()]);
 
   const handleOpenDeleteModal = (offer: Offer) => {
     setOfferToDelete(offer);
@@ -83,6 +105,28 @@ export default function OffersPage() {
       />
 
       <Card>
+        <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4">
+          <Select 
+            icon={<Filter className="w-4 h-4" />}
+            value={currentStatus}
+            onChange={(e) => handleFilterChange("status", e.target.value)}
+            wrapperClassName="w-full sm:w-auto min-w-[200px]"
+          >
+            <option value="">جميع الحالات</option>
+            <option value="1">نشط</option>
+            <option value="0">غير نشط</option>
+          </Select>
+          <Select 
+            icon={<Tag className="w-4 h-4" />}
+            value={currentType}
+            onChange={(e) => handleFilterChange("type", e.target.value)}
+            wrapperClassName="w-full sm:w-auto min-w-[200px]"
+          >
+            <option value="">جميع أنواع الخصم</option>
+            <option value="percentage">نسبة مئوية</option>
+            <option value="fixed">مبلغ ثابت</option>
+          </Select>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
@@ -204,5 +248,13 @@ export default function OffersPage() {
         </div>
       </Modal>
     </div>
+  );
+}
+
+export default function OffersPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-gray-500">جاري تحميل العروض...</div>}>
+      <OffersContent />
+    </Suspense>
   );
 }

@@ -11,16 +11,23 @@ export const metadata = {
 export default async function CategoriesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string }>;
+  searchParams: Promise<{ page?: string; status?: string; per_page?: string; paginate?: string }>;
 }) {
   const params = await searchParams;
-  const page = params.page || "1";
+  const query = new URLSearchParams();
+  
+  if (params.page) query.set("page", params.page);
+  else query.set("page", "1");
+  
+  if (params.status !== undefined && params.status !== "") query.set("status", params.status);
+  if (params.per_page) query.set("per_page", params.per_page);
+  if (params.paginate !== undefined) query.set("paginate", params.paginate);
 
   let data = [];
   let meta = null;
 
   try {
-    const res = await fetchApi(`/categories?page=${page}`);
+    const res = await fetchApi(`/categories?${query.toString()}`);
     if (res.ok) {
       const json = await res.json();
       data = json.data || [];
@@ -33,7 +40,7 @@ export default async function CategoriesPage({
   return (
     <div className="space-y-6" dir="rtl">
       <CategoriesClient categories={data} />
-      {meta && <Pagination meta={meta} />}
+      {meta && meta.last_page > 1 && <Pagination meta={meta} />}
     </div>
   );
 }

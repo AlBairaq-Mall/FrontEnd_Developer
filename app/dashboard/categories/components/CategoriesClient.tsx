@@ -4,11 +4,13 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, Search, Edit, Trash2, Eye } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Filter } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { Select } from "@/components/ui/Select";
 import { CategoryForm } from "./CategoryForm";
 import { deleteCategory } from "@/lib/actions/categories";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 
 export function CategoriesClient({ categories }: { categories: any[] }) {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -16,6 +18,22 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const currentStatus = searchParams.get("status") || "";
+
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   const handleOpenAddModal = () => {
     setSelectedCategory(null);
@@ -76,15 +94,27 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
         <CardHeader>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <h3 className="text-lg font-bold text-gray-800">قائمة التصنيفات</h3>
-            <div className="relative">
-              <input
-                type="text"
-                placeholder="ابحث عن تصنيف..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-64"
-              />
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+              <Select 
+                icon={<Filter className="w-4 h-4" />}
+                value={currentStatus}
+                onChange={(e) => handleFilterChange("status", e.target.value)}
+                wrapperClassName="w-full sm:w-auto"
+              >
+                <option value="">جميع الحالات</option>
+                <option value="1">نشط</option>
+                <option value="0">غير نشط</option>
+              </Select>
+              <div className="relative w-full sm:w-auto">
+                <input
+                  type="text"
+                  placeholder="ابحث عن تصنيف..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-64"
+                />
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              </div>
             </div>
           </div>
         </CardHeader>

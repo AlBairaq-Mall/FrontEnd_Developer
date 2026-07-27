@@ -46,9 +46,16 @@ export interface UpdateOrderData {
 
 // --- Actions ---
 
-export async function getOrders() {
+export async function getOrders(params?: Record<string, string>) {
   try {
-    const response = await fetchApi("/orders", {
+    let endpoint = "/orders";
+    if (params) {
+      const query = new URLSearchParams(params).toString();
+      if (query) {
+        endpoint += `?${query}`;
+      }
+    }
+    const response = await fetchApi(endpoint, {
       method: "GET",
     });
 
@@ -94,6 +101,17 @@ export interface CreateOrderData {
     unit_id: number | string;
     quantity: number;
   }[];
+}
+
+export async function getUsersList() {
+  try {
+    const response = await fetchApi("/users?limit=1000", { method: "GET" });
+    const data = await response.json();
+    return { success: true, data: data.data || [] };
+  } catch (error) {
+    console.error("Error fetching users list:", error);
+    return { success: false, data: [] };
+  }
 }
 
 export async function getOrderOptions() {
@@ -168,6 +186,31 @@ export async function updateOrder(id: string | number, data: UpdateOrderData) {
     return { success: true };
   } catch (error) {
     console.error("Error updating order:", error);
+    return { success: false, error: "An unexpected error occurred." };
+  }
+}
+
+export async function updateOrderStatus(id: string | number, status: string) {
+  try {
+    const response = await fetchApi(`/orders/${id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errorData.message || "Failed to update order status",
+        validationErrors: errorData.errors
+      };
+    }
+
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/dashboard/orders/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating order status:", error);
     return { success: false, error: "An unexpected error occurred." };
   }
 }
