@@ -9,13 +9,15 @@ export const metadata = {
 export default async function UnitsPage({
   searchParams,
 }: {
-  searchParams: Promise<{ page?: string; status?: string; per_page?: string; paginate?: string }>;
+  searchParams: Promise<{ page?: string; search?: string; status?: string; per_page?: string; paginate?: string }>;
 }) {
   const params = await searchParams;
   const query = new URLSearchParams();
   
   if (params.page) query.set("page", params.page);
   else query.set("page", "1");
+  
+  if (params.search) query.set("search", params.search);
   
   if (params.status !== undefined && params.status !== "") query.set("status", params.status);
   if (params.per_page) query.set("per_page", params.per_page);

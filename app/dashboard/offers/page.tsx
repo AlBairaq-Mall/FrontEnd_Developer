@@ -16,10 +16,10 @@ import { Filter, Tag } from "lucide-react";
 function OffersContent() {
   const [offers, setOffers] = useState<Offer[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedOffer, setSelectedOffer] = useState<Offer | null>(null);
-  
+
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [offerToDelete, setOfferToDelete] = useState<Offer | null>(null);
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
@@ -97,16 +97,16 @@ function OffersContent() {
         </Button>
       </div>
 
-      <OfferFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <OfferFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         onSuccess={() => loadOffers()}
         offerToEdit={selectedOffer}
       />
 
       <Card>
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-4">
-          <Select 
+          <Select
             icon={<Filter className="w-4 h-4" />}
             value={currentStatus}
             onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -116,7 +116,7 @@ function OffersContent() {
             <option value="1">نشط</option>
             <option value="0">غير نشط</option>
           </Select>
-          <Select 
+          <Select
             icon={<Tag className="w-4 h-4" />}
             value={currentType}
             onChange={(e) => handleFilterChange("type", e.target.value)}
@@ -188,28 +188,27 @@ function OffersContent() {
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center justify-center gap-2">
-                      <Link 
+                      <Link
                         href={`/dashboard/offers/${offer.id}`}
                         className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="تفاصيل العرض"
                       >
                         <Eye className="w-4 h-4" />
                       </Link>
-                      <button 
+                      <button
                         onClick={() => openEditModal(offer)}
                         className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
                         title="تعديل العرض"
                       >
                         <Edit className="w-4 h-4" />
                       </button>
-                      <button 
+                      <button
                         onClick={() => handleOpenDeleteModal(offer)}
                         disabled={deletingId === offer.id}
-                        className={`p-2 rounded-lg transition-colors ${
-                          deletingId === offer.id 
-                            ? "text-gray-400 cursor-not-allowed" 
+                        className={`p-2 rounded-lg transition-colors ${deletingId === offer.id
+                            ? "text-gray-400 cursor-not-allowed"
                             : "text-gray-400 hover:text-red-600 hover:bg-red-50"
-                        }`}
+                          }`}
                         title="حذف العرض"
                       >
                         <Trash className="w-4 h-4" />

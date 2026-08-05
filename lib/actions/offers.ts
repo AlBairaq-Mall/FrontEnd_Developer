@@ -56,6 +56,7 @@ export async function getOffers(params?: Record<string, string>) {
     }
 
     const data = await response.json();
+    console.log('offer data:', data.data);
     return { success: true, data };
   } catch (error) {
     console.error("Error fetching offers:", error);

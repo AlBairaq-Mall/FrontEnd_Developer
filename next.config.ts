@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "backend-albarqy.onrender.com",
       },
+      {
+        protocol: "http",
+        hostname: "backend-albarqy.onrender.com",
+      },
     ],
   },
 };

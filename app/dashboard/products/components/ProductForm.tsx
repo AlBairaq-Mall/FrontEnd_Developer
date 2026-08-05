@@ -17,17 +17,17 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // State for dynamic units array
   // If editing, map existing units, else start with one empty unit
   const [units, setUnits] = useState<{ id: string; unit_id: string; quantity: string; price: string }[]>(
     initialData?.units?.length > 0
       ? initialData.units.map((u: any, idx: number) => ({
-          id: Math.random().toString(),
-          unit_id: u.id.toString(),
-          quantity: u.quantity.toString(),
-          price: u.pivot?.price ? u.pivot.price.toString() : (u.price ? u.price.toString() : "")
-        }))
+        id: Math.random().toString(),
+        unit_id: u.id.toString(),
+        quantity: u.quantity.toString(),
+        price: u.pivot?.price ? u.pivot.price.toString() : (u.price ? u.price.toString() : "")
+      }))
       : [{ id: Math.random().toString(), unit_id: "", quantity: "1", price: "" }]
   );
 
@@ -96,7 +96,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
       {error && <div className="p-4 bg-red-50 text-red-600 rounded-lg text-sm">{error}</div>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
+
         {/* Main Info */}
         <div className="lg:col-span-2 space-y-6">
           <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
@@ -111,7 +111,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                 <Input name="name_en" required defaultValue={initialData?.name_en} />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-1">الوصف (العربية)</label>
@@ -142,13 +142,13 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                 إضافة وحدة
               </Button>
             </div>
-            
+
             <div className="space-y-3">
               {units.map((unit, index) => (
                 <div key={unit.id} className="flex items-end gap-3 bg-gray-50 p-3 rounded-lg border">
                   <div className="flex-1">
                     <label className="block text-xs font-medium mb-1 text-gray-600">الوحدة</label>
-                    <select 
+                    <select
                       className="w-full rounded-lg border-gray-300 bg-white border px-3 py-2 text-sm focus:border-brand focus:ring-brand"
                       value={unit.unit_id}
                       onChange={(e) => updateUnitField(unit.id, "unit_id", e.target.value)}
@@ -162,8 +162,8 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                   </div>
                   <div className="w-28">
                     <label className="block text-xs font-medium mb-1 text-gray-600">الكمية المقابلة</label>
-                    <Input 
-                      type="number" 
+                    <Input
+                      type="number"
                       min="1"
                       step="0.01"
                       value={unit.quantity}
@@ -173,8 +173,8 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                   </div>
                   <div className="w-28">
                     <label className="block text-xs font-medium mb-1 text-gray-600">سعر الوحدة (ر.س)</label>
-                    <Input 
-                      type="number" 
+                    <Input
+                      type="number"
                       min="0"
                       step="0.01"
                       value={unit.price}
@@ -184,8 +184,8 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                     />
                   </div>
                   {units.length > 1 && (
-                    <button 
-                      type="button" 
+                    <button
+                      type="button"
                       onClick={() => removeUnit(unit.id)}
                       className="p-2 mb-0.5 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
                     >
@@ -202,10 +202,10 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
         <div className="space-y-6">
           <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
             <h3 className="text-lg font-bold border-b pb-2 mb-4">التصنيف والمعرفات</h3>
-            
+
             <div>
               <label className="block text-sm font-medium mb-1">القسم *</label>
-              <select 
+              <select
                 name="category_id"
                 className="w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-sm focus:border-brand focus:ring-brand"
                 defaultValue={initialData?.category?.id || ""}
@@ -259,13 +259,13 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
               />
               <p className="text-xs text-gray-500 mt-2">يمكنك اختيار أكثر من صورة. الصور الجديدة ستضاف أو تستبدل الحالية.</p>
             </div>
-            
+
             {initialData?.images && initialData.images.length > 0 && (
               <div className="mt-4">
                 <p className="text-sm font-medium mb-2">الصور الحالية:</p>
                 <div className="flex gap-2 flex-wrap">
                   {initialData.images.map((img: any) => (
-                    <img 
+                    <img
                       key={img.id}
                       src={`https://backend-albarqy.onrender.com/storage/${img.image}`}
                       className="w-16 h-16 rounded-lg object-cover border"

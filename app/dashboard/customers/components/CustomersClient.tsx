@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { Card } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
@@ -8,9 +8,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
-import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin, Filter } from "lucide-react";
+import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin, Filter, Search } from "lucide-react";
 import { createUser, updateUser, deleteUser } from "../actions";
 import { Select } from "@/components/ui/Select";
+import { useDebounce } from "@/hooks/useDebounce";
 
 interface User {
   id: number;
@@ -34,6 +35,16 @@ export function CustomersClient({ users }: CustomersClientProps) {
   const [isPending, startTransition] = useTransition();
 
   const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const debouncedSearch = useDebounce(searchQuery, 2000);
+  const [isNavigating, startNavigation] = useTransition();
+
+  useEffect(() => {
+    if (debouncedSearch.length >= 3 || debouncedSearch.length === 0) {
+      if (debouncedSearch !== (searchParams.get("search") || "")) {
+        handleFilterChange("search", debouncedSearch);
+      }
+    }
+  }, [debouncedSearch]);
 
   // Form State
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -61,12 +72,13 @@ export function CustomersClient({ users }: CustomersClientProps) {
       params.delete(key);
     }
     params.set("page", "1");
-    router.replace(`${pathname}?${params.toString()}`);
+    startNavigation(() => {
+      router.replace(`${pathname}?${params.toString()}`);
+    });
   };
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchQuery(e.target.value);
-    handleFilterChange("search", e.target.value);
   };
 
   const getStatusColor = (isActive: boolean): "success" | "danger" => isActive ? "success" : "danger";
@@ -108,7 +120,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
       setFormError("كلمة المرور وتأكيدها غير متطابقين");
       return;
     }
-    
+
     startTransition(async () => {
       let result;
       if (editingUser) {
@@ -128,7 +140,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
   const handleDelete = async () => {
     if (!userToDelete) return;
     setDeleteError("");
-    
+
     startTransition(async () => {
       const result = await deleteUser(userToDelete.id);
       if (result?.error) {
@@ -156,7 +168,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
       <Card>
         <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto flex-1">
-            <Select 
+            <Select
               icon={<Filter className="w-4 h-4" />}
               value={searchParams.get("role") || ""}
               onChange={(e) => handleFilterChange("role", e.target.value)}
@@ -167,8 +179,8 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <option value="customer_service">خدمة العملاء</option>
               <option value="customer">مستخدم</option>
             </Select>
-            
-            <Select 
+
+            <Select
               icon={<Filter className="w-4 h-4" />}
               value={searchParams.get("status") || ""}
               onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -179,13 +191,19 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <option value="0">محظور</option>
             </Select>
 
-            <div className="w-full max-w-md">
-              <Input 
-                icon 
-                placeholder="ابحث عن مستخدم بالاسم أو البريد..." 
+            <div className="w-full max-w-md relative">
+              <input
+                type="text"
+                placeholder="ابحث عن مستخدم بالاسم أو البريد..."
                 value={searchQuery}
                 onChange={handleSearch}
+                className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full"
               />
+              {isNavigating ? (
+                <Loader2 className="w-4 h-4 text-brand absolute left-3 top-1/2 -translate-y-1/2 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              )}
             </div>
           </div>
           <Button onClick={openAddForm} className="shrink-0 flex items-center gap-2">
@@ -249,44 +267,44 @@ export function CustomersClient({ users }: CustomersClientProps) {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {user.is_active ? (
-                          <button 
+                          <button
                             onClick={() => toggleUserStatus(user)}
                             disabled={isPending}
-                            className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50" 
+                            className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
                             title="حظر المستخدم"
                           >
                             <Ban className="w-4 h-4" />
                           </button>
                         ) : (
-                          <button 
+                          <button
                             onClick={() => toggleUserStatus(user)}
                             disabled={isPending}
-                            className="text-gray-400 hover:text-green-500 transition-colors disabled:opacity-50" 
+                            className="text-gray-400 hover:text-green-500 transition-colors disabled:opacity-50"
                             title="تفعيل المستخدم"
                           >
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
-                        <button 
+                        <button
                           onClick={() => router.push(`/dashboard/customers/${user.id}/locations`)}
                           disabled={isPending}
-                          className="text-gray-400 hover:text-purple-500 transition-colors disabled:opacity-50" 
+                          className="text-gray-400 hover:text-purple-500 transition-colors disabled:opacity-50"
                           title="عناوين العميل"
                         >
                           <MapPin className="w-4 h-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => openEditForm(user)}
                           disabled={isPending}
-                          className="text-gray-400 hover:text-blue-500 transition-colors disabled:opacity-50" 
+                          className="text-gray-400 hover:text-blue-500 transition-colors disabled:opacity-50"
                           title="تعديل"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => openDeleteConfirm(user)}
                           disabled={isPending}
-                          className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50" 
+                          className="text-gray-400 hover:text-red-500 transition-colors disabled:opacity-50"
                           title="حذف"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -302,9 +320,9 @@ export function CustomersClient({ users }: CustomersClientProps) {
       </Card>
 
       {/* Add/Edit Form Modal */}
-      <Modal 
-        isOpen={isFormOpen} 
-        onClose={() => !isPending && setIsFormOpen(false)} 
+      <Modal
+        isOpen={isFormOpen}
+        onClose={() => !isPending && setIsFormOpen(false)}
         title={editingUser ? "تعديل مستخدم" : "إضافة مستخدم جديد"}
       >
         <form onSubmit={handleFormSubmit} className="space-y-4">
@@ -313,26 +331,26 @@ export function CustomersClient({ users }: CustomersClientProps) {
               {formError}
             </div>
           )}
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">الاسم</label>
-            <input 
+            <input
               required
               className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
               value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               disabled={isPending}
             />
           </div>
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">البريد الإلكتروني</label>
-            <input 
+            <input
               type="email"
               required
               className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
               value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               disabled={isPending}
             />
           </div>
@@ -341,12 +359,12 @@ export function CustomersClient({ users }: CustomersClientProps) {
             <label className="block text-sm font-medium text-gray-700 mb-1">
               كلمة المرور {editingUser && <span className="text-gray-400 font-normal">(اتركه فارغاً إذا لم ترد تغييره)</span>}
             </label>
-            <input 
+            <input
               type="password"
               required={!editingUser}
               className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               disabled={isPending}
             />
           </div>
@@ -356,12 +374,12 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 تأكيد كلمة المرور
               </label>
-              <input 
+              <input
                 type="password"
                 required={!editingUser || formData.password.length > 0}
                 className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
                 value={formData.password_confirmation}
-                onChange={(e) => setFormData({...formData, password_confirmation: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, password_confirmation: e.target.value })}
                 disabled={isPending}
               />
             </div>
@@ -369,10 +387,10 @@ export function CustomersClient({ users }: CustomersClientProps) {
 
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">الدور</label>
-            <select 
+            <select
               className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
               value={formData.role}
-              onChange={(e) => setFormData({...formData, role: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value })}
               disabled={isPending}
             >
               <option value="customer">مستخدم / عميل</option>
@@ -382,11 +400,11 @@ export function CustomersClient({ users }: CustomersClientProps) {
           </div>
 
           <div className="flex items-center gap-2">
-            <input 
-              type="checkbox" 
-              id="is_active" 
+            <input
+              type="checkbox"
+              id="is_active"
               checked={formData.is_active}
-              onChange={(e) => setFormData({...formData, is_active: e.target.checked})}
+              onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
               disabled={isPending}
               className="rounded border-gray-300 text-brand focus:ring-brand"
             />

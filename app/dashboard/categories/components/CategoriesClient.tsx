@@ -1,28 +1,39 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, Search, Edit, Trash2, Eye, Filter } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Filter, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Select } from "@/components/ui/Select";
 import { CategoryForm } from "./CategoryForm";
 import { deleteCategory } from "@/lib/actions/categories";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export function CategoriesClient({ categories }: { categories: any[] }) {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const debouncedSearch = useDebounce(searchQuery, 2000);
+  const [isNavigating, startNavigation] = useTransition();
+
   const currentStatus = searchParams.get("status") || "";
+
+  useEffect(() => {
+    if (debouncedSearch.length >= 3 || debouncedSearch.length === 0) {
+      if (debouncedSearch !== (searchParams.get("search") || "")) {
+        handleFilterChange("search", debouncedSearch);
+      }
+    }
+  }, [debouncedSearch]);
 
   const handleFilterChange = (key: string, value: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -32,7 +43,9 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
       params.delete(key);
     }
     params.set("page", "1");
-    router.push(`${pathname}?${params.toString()}`);
+    startNavigation(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
   };
 
   const handleOpenAddModal = () => {
@@ -68,11 +81,9 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
     setSelectedCategory(null);
   };
 
-  const filteredCategories = categories.filter(c => 
-    c.name_ar?.includes(searchQuery) || 
-    c.name_en?.includes(searchQuery) ||
-    c.slug?.includes(searchQuery)
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   return (
     <>
@@ -81,7 +92,7 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
           <h1 className="text-2xl font-bold text-gray-900">التصنيفات</h1>
           <p className="text-gray-500 mt-1">إدارة التصنيفات الرئيسية والفرعية للمنتجات.</p>
         </div>
-        <button 
+        <button
           onClick={handleOpenAddModal}
           className="flex items-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors"
         >
@@ -95,7 +106,7 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
             <h3 className="text-lg font-bold text-gray-800">قائمة التصنيفات</h3>
             <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-              <Select 
+              <Select
                 icon={<Filter className="w-4 h-4" />}
                 value={currentStatus}
                 onChange={(e) => handleFilterChange("status", e.target.value)}
@@ -110,10 +121,14 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
                   type="text"
                   placeholder="ابحث عن تصنيف..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={handleSearchChange}
                   className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-64"
                 />
-                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                {isNavigating ? (
+                  <Loader2 className="w-4 h-4 text-brand absolute left-3 top-1/2 -translate-y-1/2 animate-spin" />
+                ) : (
+                  <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                )}
               </div>
             </div>
           </div>
@@ -131,23 +146,23 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredCategories.length === 0 ? (
+              {categories.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={6} className="text-center py-6 text-gray-500">
                     لا توجد تصنيفات
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredCategories.map((category) => (
+                categories.map((category) => (
                   <TableRow key={category.id}>
                     <TableCell className="font-bold text-gray-900">{category.name_ar}</TableCell>
                     <TableCell className="text-gray-700">{category.name_en}</TableCell>
                     <TableCell className="text-gray-500 text-sm">{category.slug}</TableCell>
                     <TableCell>
                       {category.image ? (
-                        <img 
-                          src={`https://backend-albarqy.onrender.com/storage/${category.image}`} 
-                          alt={category.name_ar} 
+                        <img
+                          src={`https://backend-albarqy.onrender.com/storage/${category.image}`}
+                          alt={category.name_ar}
                           className="w-10 h-10 rounded-md object-cover border"
                           onError={(e) => { e.currentTarget.src = "/placeholder.png" }}
                         />
@@ -162,19 +177,19 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <Link 
+                        <Link
                           href={`/dashboard/categories/${category.id}`}
                           className="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </Link>
-                        <button 
+                        <button
                           onClick={() => handleOpenEditModal(category)}
                           className="p-2 text-gray-400 hover:text-brand hover:bg-brand/10 rounded-lg transition-colors"
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        <button 
+                        <button
                           onClick={() => handleOpenDeleteModal(category)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >
@@ -195,10 +210,10 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
         onClose={() => setIsFormModalOpen(false)}
         title={selectedCategory ? "تعديل تصنيف" : "إضافة تصنيف جديد"}
       >
-        <CategoryForm 
-          initialData={selectedCategory} 
-          onSuccess={handleFormSuccess} 
-          onCancel={() => setIsFormModalOpen(false)} 
+        <CategoryForm
+          initialData={selectedCategory}
+          onSuccess={handleFormSuccess}
+          onCancel={() => setIsFormModalOpen(false)}
         />
       </Modal>
 

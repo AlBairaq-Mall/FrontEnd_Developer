@@ -51,7 +51,7 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
   const loadOptions = async () => {
     setLoading(true);
     const res = await getOfferOptions();
-  
+
     if (res.success) {
       setOptions({
         products: res.products || [],
@@ -151,7 +151,7 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
                 {(() => {
                   const selectedProduct = options.products.find((p: any) => p.id.toString() === productId);
                   const availableUnits = selectedProduct?.units || options.units;
-                  
+
                   return availableUnits.map((u: any) => (
                     <option key={u.id} value={u.id}>{u.name_ar || u.name || `وحدة #${u.id}`}</option>
                   ));

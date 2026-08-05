@@ -1,20 +1,48 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { Card, CardHeader } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Badge } from "@/components/ui/Badge";
-import { Plus, Search, Edit, Trash2, Eye, Upload } from "lucide-react";
+import { Plus, Search, Edit, Trash2, Eye, Upload, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { deleteProduct, importProducts } from "@/lib/actions/products";
 import Link from "next/link";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useDebounce } from "@/hooks/useDebounce";
 
 export function ProductsClient({ products }: { products: any[] }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<any | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "");
+  const debouncedSearch = useDebounce(searchQuery, 2000);
   const [isImporting, setIsImporting] = useState(false);
+  const [isNavigating, startNavigation] = useTransition();
+
+  useEffect(() => {
+    if (debouncedSearch.length >= 3 || debouncedSearch.length === 0) {
+      if (debouncedSearch !== (searchParams.get("search") || "")) {
+        handleFilterChange("search", debouncedSearch);
+      }
+    }
+  }, [debouncedSearch]);
+
+  const handleFilterChange = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value) {
+      params.set(key, value);
+    } else {
+      params.delete(key);
+    }
+    params.set("page", "1");
+    startNavigation(() => {
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  };
 
   const handleImportExcel = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -54,12 +82,9 @@ export function ProductsClient({ products }: { products: any[] }) {
     }
   };
 
-  const filteredProducts = products.filter(p => 
-    p.name_ar?.includes(searchQuery) || 
-    p.name_en?.includes(searchQuery) ||
-    p.barcode?.includes(searchQuery) ||
-    p.unique_number?.includes(searchQuery)
-  );
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(e.target.value);
+  };
 
   return (
     <>
@@ -76,15 +101,15 @@ export function ProductsClient({ products }: { products: any[] }) {
               <Upload className="w-5 h-5" />
             )}
             <span>{isImporting ? "جاري الاستيراد..." : "استيراد من إكسل"}</span>
-            <input 
-              type="file" 
-              accept=".xlsx, .xls, .csv" 
-              className="hidden" 
+            <input
+              type="file"
+              accept=".xlsx, .xls, .csv"
+              className="hidden"
               onChange={handleImportExcel}
               disabled={isImporting}
             />
           </label>
-          <Link 
+          <Link
             href="/dashboard/products/new"
             className="flex items-center justify-center gap-2 bg-brand text-white px-4 py-2 rounded-lg hover:bg-brand-dark transition-colors text-sm font-medium"
           >
@@ -103,10 +128,14 @@ export function ProductsClient({ products }: { products: any[] }) {
                 type="text"
                 placeholder="ابحث بالاسم أو الباركود..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand w-full sm:w-64"
               />
-              <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              {isNavigating ? (
+                <Loader2 className="w-4 h-4 text-brand absolute left-3 top-1/2 -translate-y-1/2 animate-spin" />
+              ) : (
+                <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+              )}
             </div>
           </div>
         </CardHeader>
@@ -122,21 +151,21 @@ export function ProductsClient({ products }: { products: any[] }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredProducts.length === 0 ? (
+              {products.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={5} className="text-center py-6 text-gray-500">
                     لا توجد منتجات
                   </TableCell>
                 </TableRow>
               ) : (
-                filteredProducts.map((product) => (
+                products.map((product) => (
                   <TableRow key={product.id}>
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {product.images && product.images.length > 0 ? (
-                          <img 
-                            src={`https://backend-albarqy.onrender.com/storage/${product.images[0].image}`} 
-                            alt={product.name_ar} 
+                          <img
+                            src={`https://backend-albarqy.onrender.com/storage/${product.images[0].image}`}
+                            alt={product.name_ar}
                             className="w-10 h-10 rounded-md object-cover border"
                             onError={(e) => { e.currentTarget.src = "/placeholder.png" }}
                           />
@@ -173,7 +202,7 @@ export function ProductsClient({ products }: { products: any[] }) {
                         <Link href={`/dashboard/products/${product.id}/edit`} className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
                           <Edit className="w-4 h-4" />
                         </Link>
-                        <button 
+                        <button
                           onClick={() => handleOpenDeleteModal(product)}
                           className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                         >

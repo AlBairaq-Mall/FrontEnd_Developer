@@ -72,9 +72,10 @@ export default function Sidebar() {
     {
       title: "التسويق والعملاء",
       links: [
+        { href: "/dashboard/ads", label: "الإعلانات", icon: ImageIcon },
         { href: "/dashboard/offers", label: "العروض", icon: Percent },
         { href: "/dashboard/customers", label: "العملاء", icon: Users },
-        // { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
+        { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
         { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
       ]
     },
