@@ -3,8 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { fetchApi } from "@/lib/api";
 
-export interface Offer {
-  id: number | string;
+export interface OfferProduct {
   product: {
     id: number | string;
     name_en: string;
@@ -16,11 +15,24 @@ export interface Offer {
     name_ar: string;
     quantity: number;
   };
-  original_price: number;
-  type: "percentage" | "fixed";
-  value: number;
-  discount_amount: number;
-  final_price: number;
+  old_price?: number;
+  price?: number;
+}
+
+export interface Offer {
+  id: number | string;
+  title_en?: string;
+  title_ar?: string;
+  description_en?: string;
+  description_ar?: string;
+  image?: string;
+  type: "percentage" | "fixed" | "gift";
+  value?: number;
+  products?: OfferProduct[];
+  product_units?: OfferProduct[];
+  buy_quantity?: number;
+  gift_product?: OfferProduct;
+  gift_quantity?: number;
   start_date: string;
   end_date: string;
   is_active: boolean;
@@ -29,10 +41,20 @@ export interface Offer {
 }
 
 export interface OfferData {
-  product_id: number | string;
-  unit_id: number | string;
-  type: "percentage" | "fixed";
-  value: number;
+  title_en?: string;
+  title_ar?: string;
+  description_en?: string;
+  description_ar?: string;
+  products: {
+    product_id: number | string;
+    unit_id: number | string;
+  }[];
+  type: "percentage" | "fixed" | "gift";
+  value?: number;
+  buy_quantity?: number;
+  gift_product_id?: number | string;
+  gift_unit_id?: number | string;
+  gift_quantity?: number;
   start_date: string;
   end_date: string;
   is_active: boolean;

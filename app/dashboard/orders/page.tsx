@@ -6,7 +6,7 @@ import { Card } from "@/components/ui/Card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { Eye, Plus, Filter, Users, CreditCard } from "lucide-react";
+import { Eye, Plus, Filter, Users, CreditCard, Truck } from "lucide-react";
 import Link from "next/link";
 import { getOrders, Order, getUsersList } from "@/lib/actions/orders";
 import { CreateOrderModal } from "./components/CreateOrderModal";
@@ -163,6 +163,7 @@ function OrdersContent() {
               <TableHead>العميل</TableHead>
               <TableHead>التاريخ</TableHead>
               <TableHead>الإجمالي</TableHead>
+              <TableHead>المندوب</TableHead>
               <TableHead>الحالة</TableHead>
               <TableHead>الإجراءات</TableHead>
             </TableRow>
@@ -183,6 +184,19 @@ function OrdersContent() {
                   <TableCell>{order.user?.name || order.user?.first_name || "عميل غير معروف"}</TableCell>
                   <TableCell className="text-gray-500">{new Date(order.created_at).toLocaleDateString("ar-SA")}</TableCell>
                   <TableCell className="font-bold">{order.total} ر.س</TableCell>
+                  <TableCell>
+                    {(() => {
+                      const driverObj = order.delivery_driver || (order as any).driver;
+                      return driverObj ? (
+                        <div className="flex items-center gap-1 text-sm text-gray-700 font-medium">
+                          <Truck className="w-4 h-4 text-brand" />
+                          {driverObj.name || driverObj.first_name}
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 text-xs bg-gray-50 px-2 py-1 rounded">لم يعين</span>
+                      );
+                    })()}
+                  </TableCell>
                   <TableCell>
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-md text-xs font-bold ${getStatusColor(order.status)}`}>
                       {getStatusName(order.status)}

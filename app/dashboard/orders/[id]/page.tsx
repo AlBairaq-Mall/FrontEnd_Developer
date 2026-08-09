@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Printer, ArrowRight, Truck, CheckCircle2, AlertCircle, Phone, MapPin, User, Package } from "lucide-react";
 import Link from "next/link";
-import { getOrder, Order, updateOrderStatus } from "@/lib/actions/orders";
+import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDrivers } from "@/lib/actions/orders";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -23,10 +23,12 @@ const getStatusBadge = (status: string) => {
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
-  
+
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [drivers, setDrivers] = useState<any[]>([]);
+  const [assigningDriver, setAssigningDriver] = useState(false);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!order) return;
@@ -40,13 +42,35 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     setUpdatingStatus(false);
   };
 
+  const handleAssignDriver = async (driverId: string) => {
+    if (!order || !driverId) return;
+    setAssigningDriver(true);
+    const res = await assignDeliveryDriver(order.id, driverId);
+    if (res.success) {
+      const assignedDriver = drivers.find(d => d.id.toString() === driverId);
+      setOrder({ ...order, delivery_driver_id: parseInt(driverId), delivery_driver: assignedDriver });
+    } else {
+      alert(res.error || "فشل تعيين المندوب");
+    }
+    setAssigningDriver(false);
+  };
+
   useEffect(() => {
     async function loadOrder() {
-      const res = await getOrder(orderId);
-      if (res.success && res.data) {
-        const data = res.data.data || res.data;
+      const [orderRes, driversRes] = await Promise.all([
+        getOrder(orderId),
+        getDeliveryDrivers()
+      ]);
+
+      if (orderRes.success && orderRes.data) {
+        const data = orderRes.data.data || orderRes.data;
         setOrder(data);
       }
+
+      if (driversRes.success) {
+        setDrivers(driversRes.data);
+      }
+
       setLoading(false);
     }
     loadOrder();
@@ -83,7 +107,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           </div>
         </div>
         <div className="flex items-center gap-2 print:hidden">
-          <button 
+          <button
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-white text-gray-700 border border-gray-200 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors"
           >
@@ -198,6 +222,36 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               </h3>
             </CardHeader>
             <CardContent>
+              <div className="mb-6 pb-6 border-b border-gray-100">
+                <label className="block text-sm font-medium text-gray-700 mb-2">مندوب التوصيل</label>
+                <div className="flex gap-2">
+                  <select
+                    className="flex-1 bg-gray-50 border border-gray-200 text-gray-900 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-brand focus:border-transparent disabled:opacity-50"
+                    value={order.delivery_driver_id?.toString() || (order as any).driver_id?.toString() || order.delivery_driver?.id?.toString() || (order as any).driver?.id?.toString() || ""}
+                    onChange={(e) => handleAssignDriver(e.target.value)}
+                    disabled={assigningDriver || drivers.length === 0}
+                  >
+                    <option value="">تعيين مندوب توصيل...</option>
+                    {drivers.map(driver => (
+                      <option key={driver.id} value={driver.id}>{driver.name || driver.first_name}</option>
+                    ))}
+                  </select>
+                  {assigningDriver && <div className="flex items-center justify-center px-2"><div className="w-5 h-5 border-2 border-brand border-t-transparent rounded-full animate-spin"></div></div>}
+                </div>
+                {(() => {
+                  const assignedDriverObj = order.delivery_driver || (order as any).driver || drivers.find(d =>
+                    d.id.toString() === order.delivery_driver_id?.toString() ||
+                    d.id.toString() === (order as any).driver_id?.toString()
+                  );
+                  return assignedDriverObj ? (
+                    <div className="mt-3 text-sm flex items-center gap-2 text-gray-600 bg-gray-50 p-3 rounded-lg">
+                      <Truck className="w-4 h-4 text-brand" />
+                      <span>المندوب الحالي: <strong className="text-gray-900">{assignedDriverObj.name || assignedDriverObj.first_name}</strong></span>
+                      {assignedDriverObj.phone && <span dir="ltr" className="text-gray-500">({assignedDriverObj.phone})</span>}
+                    </div>
+                  ) : null;
+                })()}
+              </div>
               <div className="relative pl-8 border-r-2 border-gray-100 pr-4 space-y-8">
                 <div className={`relative ${["pending"].includes(order.status) ? "opacity-100" : "opacity-50"}`}>
                   <div className="absolute -right-[23px] bg-brand text-white w-6 h-6 rounded-full flex items-center justify-center border-4 border-white">
@@ -254,6 +308,50 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               </div>
             </CardContent>
           </Card>
+
+          {(() => {
+            const assignedDriverObj = order.delivery_driver || (order as any).driver || drivers.find(d => 
+              d.id.toString() === order.delivery_driver_id?.toString() || 
+              d.id.toString() === (order as any).driver_id?.toString()
+            );
+            
+            if (!assignedDriverObj) return null;
+            
+            return (
+              <Card>
+                <CardHeader>
+                  <h3 className="text-lg font-bold text-gray-800">معلومات المندوب</h3>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-brand/10 flex items-center justify-center text-brand">
+                      <Truck className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-gray-900">{assignedDriverObj.name || assignedDriverObj.first_name}</h4>
+                      <p className="text-sm text-gray-500">مندوب توصيل</p>
+                    </div>
+                  </div>
+                  {(assignedDriverObj.phone || assignedDriverObj.email) && (
+                    <div className="pt-4 border-t border-gray-100 space-y-3">
+                      {assignedDriverObj.phone && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <Phone className="w-4 h-4 text-gray-400" />
+                          <span className="text-gray-700" dir="ltr">{assignedDriverObj.phone}</span>
+                        </div>
+                      )}
+                      {assignedDriverObj.email && (
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="w-4 h-4 flex items-center justify-center text-gray-400 font-bold">@</span>
+                          <span className="text-gray-700">{assignedDriverObj.email}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
 
           <Card>
             <CardHeader>

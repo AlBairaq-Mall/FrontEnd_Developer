@@ -177,6 +177,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <option value="">جميع الأدوار</option>
               <option value="admin">مدير النظام</option>
               <option value="customer_service">خدمة العملاء</option>
+              <option value="delivery">موصل</option>
               <option value="customer">مستخدم</option>
             </Select>
 
@@ -249,7 +250,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm font-medium text-gray-600 capitalize">
-                        {user.role === 'admin' ? 'مدير' : user.role === 'customer_service' || user.role === 'customer-service' ? 'خدمة عملاء' : 'مستخدم'}
+                        {user.role === 'admin' ? 'مدير' : user.role === 'customer_service' || user.role === 'customer-service' ? 'خدمة عملاء' : user.role === 'delivery' ? 'موصل' : 'مستخدم'}
                       </div>
                     </TableCell>
                     <TableCell className="text-gray-500 text-sm">
@@ -396,6 +397,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <option value="customer">مستخدم / عميل</option>
               <option value="customer_service">خدمة عملاء</option>
               <option value="admin">مدير النظام</option>
+              <option value="delivery">موصل</option>
             </select>
           </div>
 

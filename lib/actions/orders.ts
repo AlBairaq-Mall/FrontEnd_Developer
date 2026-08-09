@@ -29,6 +29,8 @@ export interface Order {
   payment_method: "cash" | "card" | string;
   payment_status: "pending" | "paid" | "failed" | string;
   status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | string;
+  delivery_driver_id?: number | string | null;
+  delivery_driver?: any;
   notes: string | null;
   created_at: string;
   updated_at: string;
@@ -230,5 +232,42 @@ export async function deleteOrder(id: string | number) {
   } catch (error) {
     console.error("Error deleting order:", error);
     return { success: false, error: "An unexpected error occurred." };
+  }
+}
+
+export async function assignDeliveryDriver(id: string | number, delivery_driver_id: string | number) {
+  console.log(delivery_driver_id, "responseresponse")
+  try {
+    const response = await fetchApi(`/orders/${id}/delivery-driver`, {
+      method: "PATCH",
+      body: JSON.stringify({ delivery_driver_id }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errorData.message || "Failed to assign delivery driver",
+        validationErrors: errorData.errors
+      };
+    }
+
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/dashboard/orders/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error assigning delivery driver:", error);
+    return { success: false, error: "An unexpected error occurred." };
+  }
+}
+
+export async function getDeliveryDrivers() {
+  try {
+    const response = await fetchApi("/users?role=delivery&limit=100", { method: "GET" });
+    const data = await response.json();
+    return { success: true, data: data.data || [] };
+  } catch (error) {
+    console.error("Error fetching delivery drivers:", error);
+    return { success: false, data: [] };
   }
 }
