@@ -6,6 +6,7 @@ import { fetchApi } from "@/lib/api";
 export async function createUser(data: {
   name: string;
   email: string;
+  phone?: string;
   password?: string;
   password_confirmation?: string;
   role: string;
@@ -35,6 +36,7 @@ export async function updateUser(
   data: {
     name: string;
     email: string;
+    phone?: string;
     password?: string;
     password_confirmation?: string;
     role: string;

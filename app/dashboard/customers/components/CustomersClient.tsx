@@ -17,6 +17,7 @@ interface User {
   id: number;
   name: string;
   email: string;
+  phone?: string | null;
   email_verified_at: string | null;
   role: string;
   is_active: boolean;
@@ -52,6 +53,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
+    phone: "",
     password: "",
     password_confirmation: "",
     role: "customer",
@@ -87,7 +89,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
 
   const openAddForm = () => {
     setEditingUser(null);
-    setFormData({ name: "", email: "", password: "", password_confirmation: "", role: "customer", is_active: true });
+    setFormData({ name: "", email: "", phone: "", password: "", password_confirmation: "", role: "customer", is_active: true });
     setFormError("");
     setIsFormOpen(true);
   };
@@ -97,6 +99,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
     setFormData({
       name: user.name,
       email: user.email,
+      phone: user.phone || "",
       password: "", // Empty password so it only updates if provided
       password_confirmation: "",
       role: user.role,
@@ -157,6 +160,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
       await updateUser(user.id, {
         name: user.name,
         email: user.email,
+        phone: user.phone || undefined,
         role: user.role,
         is_active: !user.is_active,
       });
@@ -218,6 +222,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
               <TableRow>
                 <TableHead>المستخدم</TableHead>
                 <TableHead>البريد الإلكتروني</TableHead>
+                <TableHead>رقم الهاتف</TableHead>
                 <TableHead>الدور</TableHead>
                 <TableHead>تاريخ الانضمام</TableHead>
                 <TableHead>الحالة</TableHead>
@@ -227,7 +232,7 @@ export function CustomersClient({ users }: CustomersClientProps) {
             <TableBody>
               {users.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-gray-500">
+                  <TableCell colSpan={7} className="text-center py-8 text-gray-500">
                     لا يوجد مستخدمين لعرضهم
                   </TableCell>
                 </TableRow>
@@ -247,6 +252,9 @@ export function CustomersClient({ users }: CustomersClientProps) {
                     </TableCell>
                     <TableCell>
                       <div className="text-sm text-gray-500">{user.email}</div>
+                    </TableCell>
+                    <TableCell>
+                      <div dir="ltr" className="text-sm text-gray-500 text-right">{user.phone || "—"}</div>
                     </TableCell>
                     <TableCell>
                       <div className="text-sm font-medium text-gray-600 capitalize">
@@ -352,6 +360,19 @@ export function CustomersClient({ users }: CustomersClientProps) {
               className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+              disabled={isPending}
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">رقم الهاتف</label>
+            <input
+              type="text"
+              dir="ltr"
+              placeholder="مثال: 7XXXXXXXX"
+              className="block w-full rounded-lg border-gray-300 bg-gray-50 border px-4 py-2 text-gray-900 focus:border-brand focus:ring-brand sm:text-sm text-right"
+              value={formData.phone}
+              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
               disabled={isPending}
             />
           </div>
