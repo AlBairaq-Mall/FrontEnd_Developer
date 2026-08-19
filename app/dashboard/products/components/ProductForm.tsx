@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { createProduct, updateProduct } from "@/lib/actions/products";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
-import { Trash2, Plus } from "lucide-react";
+import { Trash2, Plus, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 interface ProductFormProps {
@@ -17,6 +17,58 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
   const router = useRouter();
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // States for new multiple image selection
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [isDragActive, setIsDragActive] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // States for deleting current images
+  const [deletedImageIds, setDeletedImageIds] = useState<number[]>([]);
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setSelectedImages((prev) => [...prev, ...filesArray]);
+    }
+  };
+
+  const removeSelectedImage = (indexToRemove: number) => {
+    setSelectedImages((prev) => prev.filter((_, idx) => idx !== indexToRemove));
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragActive(false);
+    if (e.dataTransfer.files) {
+      const filesArray = Array.from(e.dataTransfer.files).filter(
+        (file) => file.type.startsWith("image/")
+      );
+      setSelectedImages((prev) => [...prev, ...filesArray]);
+    }
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleDeleteCurrentImage = (id: number) => {
+    setDeletedImageIds((prev) => [...prev, id]);
+  };
+
+  const handleUndoDeleteCurrentImage = (id: number) => {
+    setDeletedImageIds((prev) => prev.filter((itemId) => itemId !== id));
+  };
 
   // State for dynamic units array
   // If editing, map existing units, else start with one empty unit
@@ -72,6 +124,22 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
         formData.append(`units[${index}][quantity]`, unit.quantity);
         formData.append(`units[${index}][price]`, unit.price);
       }
+    });
+
+    // Remove any auto-captured images from FormData to handle them cleanly via our state
+    formData.delete("images[]");
+    formData.delete("images");
+
+    // Append our state selected images correctly as images[]
+    selectedImages.forEach((file) => {
+      formData.append("images[]", file);
+    });
+
+    // Append deleted image IDs (under multiple standard keys to guarantee backend compatibility)
+    deletedImageIds.forEach((id) => {
+      formData.append("deleted_images[]", id.toString());
+      formData.append("delete_images[]", id.toString());
+      formData.append("deleted_image_ids[]", id.toString());
     });
 
     let res;
@@ -242,37 +310,149 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
 
           <div className="bg-white p-6 rounded-xl border border-gray-100 shadow-sm space-y-4">
             <h3 className="text-lg font-bold border-b pb-2 mb-4">الصور</h3>
-            <div>
-              <label className="block text-sm font-medium mb-1">اختر الصور</label>
+            
+            {/* Drag & Drop Area */}
+            <div
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              onClick={triggerFileInput}
+              className={`border-2 border-dashed rounded-xl p-6 text-center cursor-pointer transition-all duration-200 flex flex-col items-center justify-center group ${
+                isDragActive
+                  ? "border-brand bg-brand/5 scale-[0.98]"
+                  : "border-gray-300 hover:border-brand hover:bg-brand/5 bg-gray-50"
+              }`}
+            >
               <input
                 type="file"
-                name="images[]" // Using images[] array notation for backend
+                ref={fileInputRef}
+                onChange={handleImageSelect}
                 accept="image/*"
                 multiple
-                className="w-full block text-sm text-gray-500
-                  file:mr-4 file:py-2 file:px-4
-                  file:rounded-full file:border-0
-                  file:text-sm file:font-semibold
-                  file:bg-brand/10 file:text-brand
-                  hover:file:bg-brand/20
-                "
+                className="hidden"
               />
-              <p className="text-xs text-gray-500 mt-2">يمكنك اختيار أكثر من صورة. الصور الجديدة ستضاف أو تستبدل الحالية.</p>
+              <Upload className="w-10 h-10 text-gray-400 group-hover:text-brand transition-colors mb-3 animate-pulse" />
+              <p className="text-sm font-semibold text-gray-700">اسحب الصور وأفلتها هنا، أو اضغط للاختيار</p>
+              <p className="text-xs text-gray-400 mt-1">يمكنك اختيار صورة واحدة أو عدة صور (PNG, JPG, JPEG, WEBP)</p>
             </div>
 
-            {initialData?.images && initialData.images.length > 0 && (
-              <div className="mt-4">
-                <p className="text-sm font-medium mb-2">الصور الحالية:</p>
-                <div className="flex gap-2 flex-wrap">
-                  {initialData.images.map((img: any) => (
-                    <img
-                      key={img.id}
-                      src={`https://backend-albarqy.onrender.com/storage/${img.image}`}
-                      className="w-16 h-16 rounded-lg object-cover border"
-                      alt="Product"
-                    />
-                  ))}
+            {/* Selected Images Preview (New ones) */}
+            {selectedImages.length > 0 && (
+              <div className="space-y-2 mt-4">
+                <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                  <span>الصور الجديدة المحددة</span>
+                  <span className="bg-brand/10 text-brand text-xs px-2 py-0.5 rounded-full font-medium">
+                    {selectedImages.length}
+                  </span>
+                </p>
+                <div className="grid grid-cols-3 gap-3">
+                  {selectedImages.map((file, idx) => {
+                    const objectUrl = URL.createObjectURL(file);
+                    return (
+                      <div key={idx} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group shadow-sm">
+                        <img
+                          src={objectUrl}
+                          alt={`New Preview ${idx + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeSelectedImage(idx);
+                          }}
+                          className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md opacity-90 hover:opacity-100 flex items-center justify-center cursor-pointer"
+                          title="إزالة الصورة"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                        <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] p-1 truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                          {file.name}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
+              </div>
+            )}
+
+            {/* Current Images (For editing) */}
+            {initialData?.images && initialData.images.length > 0 && (
+              <div className="space-y-4 mt-4 border-t pt-4">
+                {/* Active Current Images */}
+                {initialData.images.filter((img: any) => !deletedImageIds.includes(img.id)).length > 0 && (
+                  <div className="space-y-2">
+                    <p className="text-sm font-bold text-gray-800 flex items-center gap-2">
+                      <span>الصور الحالية للمنتج</span>
+                      <span className="bg-gray-100 text-gray-600 text-xs px-2 py-0.5 rounded-full font-medium">
+                        {initialData.images.filter((img: any) => !deletedImageIds.includes(img.id)).length}
+                      </span>
+                    </p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {initialData.images
+                        .filter((img: any) => !deletedImageIds.includes(img.id))
+                        .map((img: any) => (
+                          <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-gray-50 group">
+                            <img
+                              src={`https://backend-albarqy.onrender.com/storage/${img.image}`}
+                              alt="Product Image"
+                              className="w-full h-full object-cover"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteCurrentImage(img.id);
+                              }}
+                              className="absolute top-1 right-1 p-1 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md opacity-90 hover:opacity-100 flex items-center justify-center cursor-pointer"
+                              title="حذف الصورة"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                            <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] p-1 truncate text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              صورة حالية
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* To Be Deleted Images */}
+                {deletedImageIds.length > 0 && (
+                  <div className="space-y-2 bg-red-50/50 p-3 rounded-xl border border-red-100">
+                    <p className="text-xs font-bold text-red-700 flex items-center gap-2">
+                      <span>صور سيتم حذفها عند حفظ التعديلات:</span>
+                      <span className="bg-red-100 text-red-800 text-xs px-2 py-0.5 rounded-full font-medium">
+                        {deletedImageIds.length}
+                      </span>
+                    </p>
+                    <div className="grid grid-cols-4 gap-2">
+                      {initialData.images
+                        .filter((img: any) => deletedImageIds.includes(img.id))
+                        .map((img: any) => (
+                          <div key={img.id} className="relative aspect-square rounded-lg overflow-hidden border border-red-200 bg-gray-100 opacity-60 group">
+                            <img
+                              src={`https://backend-albarqy.onrender.com/storage/${img.image}`}
+                              alt="Product Image"
+                              className="w-full h-full object-cover grayscale"
+                            />
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleUndoDeleteCurrentImage(img.id);
+                              }}
+                              className="absolute inset-0 bg-black/40 hover:bg-black/20 flex flex-col items-center justify-center text-white transition-colors cursor-pointer"
+                              title="تراجع عن الحذف"
+                            >
+                              <span className="text-[10px] font-semibold bg-white/20 px-2 py-1 rounded-md hover:bg-white/35 transition-colors">تراجع</span>
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

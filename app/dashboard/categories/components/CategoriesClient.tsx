@@ -164,7 +164,9 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
                           src={`https://backend-albarqy.onrender.com/storage/${category.image}`}
                           alt={category.name_ar}
                           className="w-10 h-10 rounded-md object-cover border"
-                          onError={(e) => { e.currentTarget.src = "/placeholder.png" }}
+                          onError={(e) => { 
+                            e.currentTarget.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' width='40' height='40'%3E%3Crect width='100%25' height='100%25' fill='%23f3f4f6'/%3E%3Cpath d='M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 9.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm6.5 7H9l2.25-3 1.75 2.26 2.5-3.26L19 16.5H15z' fill='%239ca3af'/%3E%3C/svg%3E"; 
+                          }}
                         />
                       ) : (
                         <span className="text-gray-400 text-xs">بدون صورة</span>

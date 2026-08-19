@@ -5,9 +5,15 @@ import { fetchApi } from "@/lib/api";
 
 export async function createProduct(formData: FormData) {
   try {
+    // Reconstruct FormData to avoid Next.js serialization bugs with multiple files
+    const cleanFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+      cleanFormData.append(key, value);
+    }
+
     const response = await fetchApi("/products", {
       method: "POST",
-      body: formData,
+      body: cleanFormData,
     });
 
     if (!response.ok) {
@@ -25,12 +31,18 @@ export async function createProduct(formData: FormData) {
 
 export async function updateProduct(id: string | number, formData: FormData) {
   try {
+    // Reconstruct FormData to avoid Next.js serialization bugs with multiple files
+    const cleanFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+      cleanFormData.append(key, value);
+    }
+
     // Append _method=PATCH to the FormData to satisfy backend requirement for updates
-    formData.append("_method", "PATCH");
-    
+    cleanFormData.append("_method", "PATCH");
+
     const response = await fetchApi(`/products/${id}`, {
       method: "POST",
-      body: formData,
+      body: cleanFormData,
     });
 
     if (!response.ok) {

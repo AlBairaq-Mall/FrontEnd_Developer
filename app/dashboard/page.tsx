@@ -1,36 +1,51 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { DollarSign, ShoppingBag, Users, Activity, AlertTriangle } from "lucide-react";
- import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { ShoppingBag, Users, Package, AlertTriangle } from "lucide-react";
+import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { getDashboardStats, DashboardStats } from "@/lib/actions/dashboard";
 
 export default function Dashboard() {
-  const stats = [
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    async function loadStats() {
+      setLoading(true);
+      setError(null);
+      const res = await getDashboardStats();
+      if (res.success && res.data) {
+        setStats(res.data);
+      } else {
+        setError(res.error || "Failed to load stats");
+      }
+      setLoading(false);
+    }
+    loadStats();
+  }, []);
+
+  const cards = [
     {
-      title: "عدد الطلبات اليومية",
-      value: "45,231 ر.س",
-      icon: DollarSign,
+      title: "إجمالي الطلبات",
+      value: stats?.ordersCount,
+      icon: ShoppingBag,
       color: "bg-blue-500",
     },
     {
-      title: "إجمالي الإيرادات",
-      value: "124",
-      icon: ShoppingBag,
-      color: "bg-brand",
-    },
-    {
-      title: "عدد العملاء الجدد",
-      value: "1,204",
+      title: "إجمالي العملاء",
+      value: stats?.customersCount,
       icon: Users,
       color: "bg-purple-500",
     },
     {
-      title: "عدد المندوبين النشطين",
-      value: "8,320",
-      icon: Activity,
-      color: "bg-orange-500",
+      title: "إجمالي المنتجات",
+      value: stats?.productsCount,
+      icon: Package,
+      color: "bg-brand",
     },
   ];
 
@@ -60,16 +75,22 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {cards.map((card, i) => (
           <Card key={i}>
             <CardContent className="p-6 flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-500 mb-1">{stat.title}</p>
-                <h3 className="text-2xl font-bold text-gray-900">{stat.value}</h3>
+                <p className="text-sm font-medium text-gray-500 mb-1">{card.title}</p>
+                {loading ? (
+                  <div className="h-8 w-24 bg-gray-200 rounded animate-pulse mt-1" />
+                ) : error ? (
+                  <span className="text-sm text-red-500 font-medium">فشل التحميل</span>
+                ) : (
+                  <h3 className="text-2xl font-bold text-gray-900">{card.value?.toLocaleString() ?? 0}</h3>
+                )}
               </div>
-              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${stat.color}`}>
-                <stat.icon className="w-6 h-6" />
+              <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white ${card.color}`}>
+                <card.icon className="w-6 h-6" />
               </div>
             </CardContent>
           </Card>
