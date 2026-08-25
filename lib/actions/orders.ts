@@ -14,6 +14,7 @@ export interface OrderItem {
   quantity: number;
   price: number;
   total: number;
+  is_gift?: boolean;
 }
 
 export interface Order {
@@ -25,6 +26,7 @@ export interface Order {
   subtotal: number;
   delivery_fee: number;
   discount: number;
+  coupon_discount?: number;
   total: number;
   payment_method: "cash" | "card" | string;
   payment_status: "pending" | "paid" | "failed" | string;

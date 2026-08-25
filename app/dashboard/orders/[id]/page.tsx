@@ -6,7 +6,10 @@ import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
 import { Printer, ArrowRight, Truck, CheckCircle2, AlertCircle, Phone, MapPin, User, Package } from "lucide-react";
 import Link from "next/link";
-import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDrivers } from "@/lib/actions/orders";
+import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDrivers, updateOrder } from "@/lib/actions/orders";
+import { Modal } from "@/components/ui/Modal";
+import { Button } from "@/components/ui/Button";
+import { Input } from "@/components/ui/Input";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -20,6 +23,12 @@ const getStatusBadge = (status: string) => {
   }
 };
 
+const safeFormatDate = (dateStr: string) => {
+  if (!dateStr) return "";
+  const isoStr = dateStr.includes(" ") && !dateStr.includes("T") ? dateStr.replace(" ", "T") : dateStr;
+  return new Date(isoStr).toLocaleString("ar-SA");
+};
+
 export default function OrderDetailsPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const orderId = resolvedParams.id;
@@ -30,8 +39,25 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const [drivers, setDrivers] = useState<any[]>([]);
   const [assigningDriver, setAssigningDriver] = useState(false);
 
+  // States for delivery fee confirmation modal
+  const [isDeliveryFeeModalOpen, setIsDeliveryFeeModalOpen] = useState(false);
+  const [pendingStatus, setPendingStatus] = useState<string | null>(null);
+  const [deliveryFeeType, setDeliveryFeeType] = useState<"free" | "custom">("free");
+  const [customDeliveryFee, setCustomDeliveryFee] = useState<string>("");
+
   const handleStatusChange = async (newStatus: string) => {
     if (!order) return;
+
+    // Check if the user is changing to "confirmed" and delivery fee is missing (null or undefined)
+    const isMissingDeliveryFee = order.delivery_fee === null || order.delivery_fee === undefined;
+    if (newStatus === "confirmed" && isMissingDeliveryFee) {
+      setPendingStatus(newStatus);
+      setDeliveryFeeType("free");
+      setCustomDeliveryFee("");
+      setIsDeliveryFeeModalOpen(true);
+      return;
+    }
+
     setUpdatingStatus(true);
     const res = await updateOrderStatus(order.id, newStatus);
     if (res.success) {
@@ -40,6 +66,51 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
       alert(res.error || "فشل تحديث الحالة");
     }
     setUpdatingStatus(false);
+  };
+
+  const handleDeliveryFeeSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!order || !pendingStatus) return;
+
+    const fee = deliveryFeeType === "free" ? 0 : Number(customDeliveryFee);
+
+    if (deliveryFeeType === "custom" && (isNaN(fee) || fee < 0)) {
+      alert("الرجاء إدخال مبلغ توصيل صحيح");
+      return;
+    }
+
+    setUpdatingStatus(true);
+    setIsDeliveryFeeModalOpen(false);
+
+    // 1. Update delivery fee
+    const feeRes = await updateOrder(order.id, { delivery_fee: fee });
+    if (feeRes.success) {
+      // 2. Update status to "confirmed"
+      const statusRes = await updateOrderStatus(order.id, pendingStatus);
+      if (statusRes.success) {
+        // Fetch order details again to sync the state perfectly
+        const freshOrder = await getOrder(order.id);
+        if (freshOrder.success && freshOrder.data) {
+          const data = freshOrder.data.data || freshOrder.data;
+          setOrder(data);
+        } else {
+          setOrder({ ...order, delivery_fee: fee, status: pendingStatus as any });
+        }
+      } else {
+        alert(statusRes.error || "فشل تحديث الحالة بعد تعيين سعر التوصيل");
+        // Refetch to sync the delivery fee
+        const freshOrder = await getOrder(order.id);
+        if (freshOrder.success && freshOrder.data) {
+          const data = freshOrder.data.data || freshOrder.data;
+          setOrder(data);
+        }
+      }
+    } else {
+      alert(feeRes.error || "فشل تحديث سعر التوصيل");
+    }
+
+    setUpdatingStatus(false);
+    setPendingStatus(null);
   };
 
   const handleAssignDriver = async (driverId: string) => {
@@ -91,7 +162,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
   const orderItems = order.items || [];
 
-  return ( 
+  return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -103,7 +174,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <h1 className="text-2xl font-bold text-gray-900">طلب #{order.order_number || order.id}</h1>
               {getStatusBadge(order.status)}
             </div>
-            <p className="text-gray-500 mt-1">تم الإنشاء في {new Date(order.created_at).toLocaleString("ar-SA")}</p>
+            <p className="text-gray-500 mt-1">تم الإنشاء في {safeFormatDate(order.created_at)}</p>
           </div>
         </div>
         <div className="flex items-center gap-2 print:hidden">
@@ -167,8 +238,29 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                     orderItems.map((item, index) => (
                       <TableRow key={item.id || index}>
                         <TableCell className="font-bold text-gray-900">
-                          {item.product?.name_ar || item.product?.name_en || item.product?.name || item.product?.title || `منتج #${item.product_id}`}
-                          {item.unit && <span className="text-gray-500 text-xs mr-2 font-normal">({item.unit?.name_ar || item.unit?.name})</span>}
+                          <div className="flex items-center flex-wrap gap-2">
+                            <span>{item.product?.name_ar || item.product?.name_en || item.product?.name || item.product?.title || `منتج #${item.product_id}`}</span>
+                            {item.unit && <span className="text-gray-500 text-xs font-normal">({item.unit?.name_ar || item.unit?.name})</span>}
+                            {item.is_gift && (
+                              <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 text-xs px-2 py-0.5 rounded-full border border-rose-100 font-semibold">
+                                هدية 🎁
+                              </span>
+                            )}
+                          </div>
+                          {(item.product?.unique_number || item.product?.barcode) && (
+                            <div className="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-4 gap-y-1 font-normal font-mono">
+                              {item.product?.unique_number && (
+                                <span className="flex items-center gap-1">
+                                  <span className="text-gray-500 font-sans">رمز المنتج:</span> {item.product.unique_number}
+                                </span>
+                              )}
+                              {item.product?.barcode && (
+                                <span className="flex items-center gap-1">
+                                  <span className="text-gray-500 font-sans">الباركود:</span> {item.product.barcode}
+                                </span>
+                              )}
+                            </div>
+                          )}
                         </TableCell>
                         <TableCell>{item.price} ر.س</TableCell>
                         <TableCell>{item.quantity}</TableCell>
@@ -187,12 +279,18 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 </div>
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>رسوم التوصيل:</span>
-                  <span>{order.delivery_fee || 0} ر.س</span>
+                  <span>{order.delivery_fee === 0 ? "مجاني" : `${order.delivery_fee} ر.س`}</span>
                 </div>
                 {order.discount > 0 && (
                   <div className="flex justify-between text-sm text-red-600">
-                    <span>الخصم:</span>
+                    <span>الخصم العام:</span>
                     <span>-{order.discount} ر.س</span>
+                  </div>
+                )}
+                {order.coupon_discount !== undefined && order.coupon_discount > 0 && (
+                  <div className="flex justify-between text-sm text-red-600">
+                    <span>خصم الكوبون:</span>
+                    <span>-{order.coupon_discount} ر.س</span>
                   </div>
                 )}
                 <div className="pt-3 border-t border-gray-200 flex justify-between font-bold text-lg text-gray-900">
@@ -301,9 +399,14 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                 </div>
                 <div className="flex items-start gap-3 text-sm">
                   <MapPin className="w-4 h-4 text-gray-400 shrink-0 mt-0.5" />
-                  <span className="text-gray-700 leading-relaxed">
-                    {order.location?.address || "عنوان غير متوفر"}
-                  </span>
+                  <div className="text-gray-700 leading-relaxed">
+                    {order.location?.title && (
+                      <span className="font-bold block text-gray-900 text-xs mb-1 bg-gray-100 w-fit px-2 py-0.5 rounded">
+                        {order.location.title}
+                      </span>
+                    )}
+                    <span>{order.location?.address || "عنوان غير متوفر"}</span>
+                  </div>
                 </div>
               </div>
             </CardContent>
@@ -380,13 +483,13 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
 
           {(() => {
-            const assignedDriverObj = order.delivery_driver || (order as any).driver || drivers.find(d => 
-              d.id.toString() === order.delivery_driver_id?.toString() || 
+            const assignedDriverObj = order.delivery_driver || (order as any).driver || drivers.find(d =>
+              d.id.toString() === order.delivery_driver_id?.toString() ||
               d.id.toString() === (order as any).driver_id?.toString()
             );
-            
+
             if (!assignedDriverObj) return null;
-            
+
             return (
               <Card>
                 <CardHeader>
@@ -446,6 +549,86 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
           </Card>
         </div>
       </div>
+
+      {/* نافذة تحديد سعر التوصيل */}
+      <Modal
+        isOpen={isDeliveryFeeModalOpen}
+        onClose={() => {
+          setIsDeliveryFeeModalOpen(false);
+          setPendingStatus(null);
+        }}
+        title="تحديد سعر التوصيل المطلوب"
+      >
+        <form onSubmit={handleDeliveryFeeSubmit} className="space-y-4">
+          <p className="text-sm text-gray-600 leading-relaxed text-right">
+            الطلب الحالي لا يحتوي على سعر توصيل محدد. يرجى تحديد سعر التوصيل للمتابعة وتأكيد الطلب.
+          </p>
+
+          <div className="space-y-3 pt-2 text-right" dir="rtl">
+            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <input
+                type="radio"
+                name="deliveryFeeType"
+                value="free"
+                checked={deliveryFeeType === "free"}
+                onChange={() => setDeliveryFeeType("free")}
+                className="text-brand focus:ring-brand h-4 w-4"
+              />
+              <div className="mr-2">
+                <span className="font-bold text-gray-900 block">توصيل مجاني</span>
+                <span className="text-xs text-gray-500">سيتم إرسال قيمة التوصيل كـ 0 ر.س</span>
+              </div>
+            </label>
+
+            <label className="flex items-center gap-3 p-3 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+              <input
+                type="radio"
+                name="deliveryFeeType"
+                value="custom"
+                checked={deliveryFeeType === "custom"}
+                onChange={() => setDeliveryFeeType("custom")}
+                className="text-brand focus:ring-brand h-4 w-4"
+              />
+              <div className="flex-1 mr-2">
+                <span className="font-bold text-gray-900 block mb-1">مبلغ توصيل مخصص</span>
+                {deliveryFeeType === "custom" && (
+                  <Input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="أدخل رسوم التوصيل..."
+                    value={customDeliveryFee}
+                    onChange={(e) => setCustomDeliveryFee(e.target.value)}
+                    required
+                    className="mt-2 text-right"
+                  />
+                )}
+              </div>
+            </label>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4 border-t border-gray-100" dir="rtl">
+            <Button type="submit" disabled={updatingStatus}>
+              {updatingStatus ? (
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+              ) : (
+                "حفظ وتأكيد الطلب"
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setIsDeliveryFeeModalOpen(false);
+                setPendingStatus(null);
+              }}
+              disabled={updatingStatus}
+            >
+              إلغاء
+            </Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }

@@ -60,15 +60,9 @@ export default function Sidebar() {
       title: "المبيعات",
       links: [
         { href: "/dashboard/orders", label: "الطلبات", icon: ShoppingCart },
-        { href: "/dashboard/cart", label: "السلة", icon: ShoppingBasket },
       ]
     },
-    {
-      title: "اللوجستيات",
-      links: [
-         { href: "/dashboard/drivers", label: "المندوبين", icon: Truck },
-      ]
-    },
+
     {
       title: "التسويق والعملاء",
       links: [

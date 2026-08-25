@@ -251,7 +251,6 @@ export function SalesReportView({
                 <TableHead>الاسم بالعربية</TableHead>
                 <TableHead className="text-center">عدد الطلبات</TableHead>
                 <TableHead className="text-center">نسبة المساهمة</TableHead>
-                <TableHead>اللون المرجعي</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -279,15 +278,6 @@ export function SalesReportView({
                           />
                         </div>
                         <span className="text-xs font-semibold text-gray-700">{percentage}%</span>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3.5 h-3.5 rounded-full shadow-sm"
-                          style={{ backgroundColor: STATUS_COLORS[row.status] }}
-                        />
-                        <span className="text-xs text-gray-500 font-mono">{STATUS_COLORS[row.status]}</span>
                       </div>
                     </TableCell>
                   </TableRow>
