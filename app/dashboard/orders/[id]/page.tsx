@@ -91,7 +91,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
 
   const orderItems = order.items || [];
 
-  return (
+  return ( 
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -308,6 +308,76 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               </div>
             </CardContent>
           </Card>
+
+          {(() => {
+            const latRaw = order.location?.latitude;
+            const lonRaw = order.location?.longitude;
+            const lat = latRaw ? parseFloat(latRaw) : null;
+            const lon = lonRaw ? parseFloat(lonRaw) : null;
+            const hasCoordinates = lat !== null && !isNaN(lat) && lon !== null && !isNaN(lon);
+            const address = order.location?.address;
+
+            return (
+              <Card>
+                <CardHeader>
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-brand" />
+                    موقع التوصيل
+                  </h3>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {hasCoordinates ? (
+                    <div className="space-y-3">
+                      <div className="relative w-full h-48 rounded-lg overflow-hidden border border-gray-200">
+                        <iframe
+                          src={`https://maps.google.com/maps?q=${lat},${lon}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                          width="100%"
+                          height="100%"
+                          style={{ border: 0 }}
+                          allowFullScreen
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                        ></iframe>
+                      </div>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${lat},${lon}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center gap-2 w-full bg-brand text-white py-2 px-4 rounded-lg hover:bg-brand-dark transition-colors font-medium text-sm"
+                      >
+                        <MapPin className="w-4 h-4" />
+                        <span>فتح في خرائط Google</span>
+                      </a>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      <div className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-gray-200 rounded-lg text-center bg-gray-50">
+                        <div className="w-12 h-12 rounded-full bg-yellow-50 flex items-center justify-center text-yellow-600 mb-3">
+                          <AlertCircle className="w-6 h-6" />
+                        </div>
+                        <p className="text-sm font-medium text-gray-700">الإحداثيات الجغرافية غير متوفرة</p>
+                        <p className="text-xs text-gray-500 mt-1 max-w-[200px]">
+                          لم يقم العميل بتحديد موقعه الدقيق على الخريطة أثناء الطلب.
+                        </p>
+                      </div>
+                      {address && address !== "عنوان غير متوفر" && (
+                        <a
+                          href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center justify-center gap-2 w-full border border-gray-200 text-gray-700 py-2 px-4 rounded-lg hover:bg-gray-50 transition-colors font-medium text-sm"
+                        >
+                          <MapPin className="w-4 h-4 text-gray-400" />
+                          <span>البحث عن العنوان في خرائط Google</span>
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            );
+          })()}
+
 
           {(() => {
             const assignedDriverObj = order.delivery_driver || (order as any).driver || drivers.find(d => 
