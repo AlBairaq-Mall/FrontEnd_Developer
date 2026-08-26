@@ -4,9 +4,9 @@ import { useEffect, useState, use } from "react";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/Table";
-import { Printer, ArrowRight, Truck, CheckCircle2, AlertCircle, Phone, MapPin, User, Package } from "lucide-react";
+import { Printer, ArrowRight, Truck, CheckCircle2, AlertCircle, Phone, MapPin, User, Package, Pencil, Check, X } from "lucide-react";
 import Link from "next/link";
-import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDrivers, updateOrder } from "@/lib/actions/orders";
+import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDrivers, updateOrder, updateOrderDeliveryFee } from "@/lib/actions/orders";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -44,6 +44,11 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
   const [pendingStatus, setPendingStatus] = useState<string | null>(null);
   const [deliveryFeeType, setDeliveryFeeType] = useState<"free" | "custom">("free");
   const [customDeliveryFee, setCustomDeliveryFee] = useState<string>("");
+
+  // States for editing delivery fee directly
+  const [isEditingDeliveryFee, setIsEditingDeliveryFee] = useState(false);
+  const [tempDeliveryFee, setTempDeliveryFee] = useState("");
+  const [updatingDeliveryFee, setUpdatingDeliveryFee] = useState(false);
 
   const handleStatusChange = async (newStatus: string) => {
     if (!order) return;
@@ -83,7 +88,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     setIsDeliveryFeeModalOpen(false);
 
     // 1. Update delivery fee
-    const feeRes = await updateOrder(order.id, { delivery_fee: fee });
+    const feeRes = await updateOrderDeliveryFee(order.id, fee);
     if (feeRes.success) {
       // 2. Update status to "confirmed"
       const statusRes = await updateOrderStatus(order.id, pendingStatus);
@@ -124,6 +129,32 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
       alert(res.error || "فشل تعيين المندوب");
     }
     setAssigningDriver(false);
+  };
+
+  const handleSaveDeliveryFee = async () => {
+    if (!order) return;
+    const fee = Number(tempDeliveryFee);
+    if (isNaN(fee) || fee < 0) {
+      alert("الرجاء إدخال مبلغ توصيل صحيح");
+      return;
+    }
+
+    setUpdatingDeliveryFee(true);
+    const res = await updateOrderDeliveryFee(order.id, fee);
+    if (res.success) {
+      // Fetch fresh order details to sync the state (recalculates subtotal, total, etc.)
+      const freshOrder = await getOrder(order.id);
+      if (freshOrder.success && freshOrder.data) {
+        const data = freshOrder.data.data || freshOrder.data;
+        setOrder(data);
+      } else {
+        setOrder({ ...order, delivery_fee: fee });
+      }
+      setIsEditingDeliveryFee(false);
+    } else {
+      alert(res.error || "فشل تحديث سعر التوصيل");
+    }
+    setUpdatingDeliveryFee(false);
   };
 
   useEffect(() => {
@@ -277,9 +308,74 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                   <span>المجموع الفرعي:</span>
                   <span>{order.subtotal || 0} ر.س</span>
                 </div>
-                <div className="flex justify-between text-sm text-gray-600">
+                <div className="flex justify-between items-center text-sm text-gray-600 min-h-[32px]">
                   <span>رسوم التوصيل:</span>
-                  <span>{order.delivery_fee === 0 ? "مجاني" : `${order.delivery_fee} ر.س`}</span>
+                  {isEditingDeliveryFee ? (
+                    <div className="flex items-center gap-1.5 print:hidden">
+                      <input
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        value={tempDeliveryFee}
+                        onChange={(e) => setTempDeliveryFee(e.target.value)}
+                        disabled={updatingDeliveryFee}
+                        className="w-20 text-right bg-white border border-gray-300 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand focus:border-transparent text-gray-900 font-mono"
+                        autoFocus
+                      />
+                      <span className="text-xs text-gray-500 font-sans">ر.س</span>
+                      <button
+                        type="button"
+                        onClick={handleSaveDeliveryFee}
+                        disabled={updatingDeliveryFee}
+                        className="p-1 text-green-600 hover:bg-green-50 rounded transition-colors disabled:opacity-50"
+                        title="حفظ"
+                      >
+                        {updatingDeliveryFee ? (
+                          <div className="w-3.5 h-3.5 border-2 border-green-600 border-t-transparent rounded-full animate-spin"></div>
+                        ) : (
+                          <Check className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingDeliveryFee(false)}
+                        disabled={updatingDeliveryFee}
+                        className="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                        title="إلغاء"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 group print:hidden">
+                      <span className="font-bold text-gray-900">
+                        {order.delivery_fee === null || order.delivery_fee === undefined
+                          ? "غير محدد"
+                          : order.delivery_fee === 0
+                          ? "مجاني"
+                          : `${order.delivery_fee} ر.س`}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setTempDeliveryFee((order.delivery_fee ?? 0).toString());
+                          setIsEditingDeliveryFee(true);
+                        }}
+                        className="p-1 text-gray-400 hover:text-brand hover:bg-gray-100 rounded transition-all print:hidden"
+                        title="تعديل سعر التوصيل"
+                      >
+                        <Pencil className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                  {/* Keep the static view for printing */}
+                  <span className="hidden print:inline font-bold text-gray-900">
+                    {order.delivery_fee === null || order.delivery_fee === undefined
+                      ? "غير محدد"
+                      : order.delivery_fee === 0
+                      ? "مجاني"
+                      : `${order.delivery_fee} ر.س`}
+                  </span>
                 </div>
                 {order.discount > 0 && (
                   <div className="flex justify-between text-sm text-red-600">

@@ -172,7 +172,7 @@ export async function createOrder(data: CreateOrderData) {
 export async function updateOrder(id: string | number, data: UpdateOrderData) {
   try {
     const response = await fetchApi(`/orders/${id}`, {
-      method: "PATCH",
+      method: "PUT",
       body: JSON.stringify(data),
     });
 
@@ -215,6 +215,31 @@ export async function updateOrderStatus(id: string | number, status: string) {
     return { success: true };
   } catch (error) {
     console.error("Error updating order status:", error);
+    return { success: false, error: "An unexpected error occurred." };
+  }
+}
+
+export async function updateOrderDeliveryFee(id: string | number, deliveryFee: number) {
+  try {
+    const response = await fetchApi(`/orders/${id}/delivery-fee`, {
+      method: "PATCH",
+      body: JSON.stringify({ delivery_fee: deliveryFee }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      return {
+        success: false,
+        error: errorData.message || "Failed to update delivery fee",
+        validationErrors: errorData.errors
+      };
+    }
+
+    revalidatePath("/dashboard/orders");
+    revalidatePath(`/dashboard/orders/${id}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Error updating delivery fee:", error);
     return { success: false, error: "An unexpected error occurred." };
   }
 }
