@@ -24,7 +24,8 @@ import {
   ChevronDown,
   ChevronUp,
   Percent,
-  ShoppingBasket
+  ShoppingBasket,
+  FileText
 } from "lucide-react";
 import { useState, useTransition } from "react";
 
@@ -71,6 +72,12 @@ export default function Sidebar() {
         { href: "/dashboard/customers", label: "العملاء", icon: Users },
         { href: "/dashboard/coupons", label: "الكوبونات", icon: Ticket },
         { href: "/dashboard/notifications", label: "الإشعارات", icon: Bell },
+      ]
+    },
+    {
+      title: "إدارة المحتوى",
+      links: [
+        { href: "/dashboard/content-management", label: "إدارة المحتوى", icon: FileText },
       ]
     },
     {
