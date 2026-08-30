@@ -59,18 +59,7 @@ export default function Dashboard() {
     { name: 'الجمعة', sales: 3490 },
   ];
 
-  const recentOrders = [
-    { id: "ORD-001#", customer: "أحمد محمد", date: "منذ ساعتين", amount: "240.50 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
-    { id: "ORD-002#", customer: "سارة عبد الله", date: "منذ 3 ساعات", amount: "150.00 ر.س", status: "مكتمل", statusVariant: "success" as const },
-    { id: "ORD-003#", customer: "خالد فهد", date: "منذ 5 ساعات", amount: "89.90 ر.س", status: "ملغي", statusVariant: "destructive" as const },
-    { id: "ORD-004#", customer: "منى علي", date: "منذ 8 ساعات", amount: "420.00 ر.س", status: "قيد التجهيز", statusVariant: "warning" as const },
-  ];
-
-  const lowStockAlerts = [
-    { name: "عصير برتقال طبيعي", stock: 5, statusVariant: "destructive" as const },
-    { name: "خبز أسمر للدايت", stock: 12, statusVariant: "warning" as const },
-    { name: "جبن أبيض قليل الدسم", stock: 8, statusVariant: "destructive" as const },
-  ];
+  
 
   return (
     <div className="space-y-6">

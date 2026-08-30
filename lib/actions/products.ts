@@ -78,14 +78,32 @@ export async function deleteProduct(id: string | number) {
 
 export async function importProducts(formData: FormData) {
   try {
+    // Reconstruct FormData to avoid Next.js serialization bugs with files
+    const cleanFormData = new FormData();
+    for (const [key, value] of formData.entries()) {
+      cleanFormData.append(key, value);
+    }
+
     const response = await fetchApi(`/products/import`, {
       method: "POST",
-      body: formData,
+      body: cleanFormData,
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      return { success: false, error: errorData.message || "Failed to import products" };
+      const errorText = await response.text();
+      console.error("Backend import error response:", errorText);
+      try {
+        const errorData = JSON.parse(errorText);
+        return { 
+          success: false, 
+          error: errorData.error || errorData.message || `Failed to import: ${response.statusText} (Status: ${response.status})` 
+        };
+      } catch (e) {
+        return { 
+          success: false, 
+          error: `Failed to import: (${response.status}) - ${errorText.substring(0, 150)}` 
+        };
+      }
     }
 
     revalidatePath("/dashboard/products");

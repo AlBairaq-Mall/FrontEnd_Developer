@@ -200,7 +200,7 @@ function OffersContent() {
                             {p.old_price !== undefined && p.price !== undefined ? (
                               <div className="flex flex-col items-end shrink-0">
                                 <span className="text-gray-400 line-through text-[10px] leading-none mb-0.5">{p.old_price}</span>
-                                <span className="font-bold text-green-600 leading-none">{p.price} ر.س</span>
+                                <span className="font-bold text-green-600 leading-none">{p.price} ر.ي</span>
                               </div>
                             ) : null}
                           </div>

@@ -92,7 +92,7 @@ export function DriversReportView({
                     <TableCell className="text-center text-green-700 font-bold">{driver.delivered_orders}</TableCell>
                     <TableCell className="text-center text-red-600 font-bold">{driver.cancelled_orders}</TableCell>
                     <TableCell className="text-center font-bold text-gray-900">
-                      {driver.total_sales.toLocaleString("ar-SA")} ر.س
+                      {driver.total_sales.toLocaleString("ar-SA")} ر.ي
                     </TableCell>
                     <TableCell className="print:hidden">
                       <Button

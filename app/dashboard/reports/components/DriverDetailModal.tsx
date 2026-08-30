@@ -54,7 +54,7 @@ export function DriverDetailModal({
             <div className="bg-emerald-50 rounded-lg p-3 border border-emerald-100">
               <span className="text-xs text-green-600 block">مبيعات المندوب</span>
               <span className="text-xl font-bold text-green-800">
-                {driverDetail.total_sales.toLocaleString("ar-SA")} ر.س
+                {driverDetail.total_sales.toLocaleString("ar-SA")} ر.ي
               </span>
             </div>
             <div className="bg-green-50 rounded-lg p-3 border border-green-100">

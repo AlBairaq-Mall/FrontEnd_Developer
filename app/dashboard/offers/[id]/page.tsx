@@ -91,7 +91,7 @@ export default function OfferDetailsPage() {
                     <div>
                       <p className="text-sm text-gray-500 mb-1">قيمة الخصم</p>
                       <p className="font-bold text-2xl text-gray-900">
-                        {offer.value} {offer.type === "percentage" ? "%" : "ر.س"}
+                        {offer.value} {offer.type === "percentage" ? "%" : "ر.ي"}
                       </p>
                     </div>
                   )}
@@ -151,8 +151,8 @@ export default function OfferDetailsPage() {
                               </div>
                               {p.old_price !== undefined && p.price !== undefined && (
                                 <div className="inline-flex items-center gap-2 text-sm">
-                                  <span className="text-gray-400 line-through">{p.old_price} ر.س</span>
-                                  <span className="font-bold text-green-600">{p.price} ر.س</span>
+                                  <span className="text-gray-400 line-through">{p.old_price} ر.ي</span>
+                                  <span className="font-bold text-green-600">{p.price} ر.ي</span>
                                 </div>
                               )}
                             </div>

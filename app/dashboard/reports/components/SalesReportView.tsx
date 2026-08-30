@@ -96,7 +96,7 @@ export function SalesReportView({
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">إجمالي المبيعات</p>
               <h3 className="text-2xl font-bold text-gray-900">
-                {salesData?.total_sales.toLocaleString("ar-SA") || 0} ر.س
+                {salesData?.total_sales.toLocaleString("ar-SA") || 0} ر.ي
               </h3>
               <p className="text-xs text-gray-400 mt-1">يستثني الطلبات الملغاة</p>
             </div>
@@ -126,7 +126,7 @@ export function SalesReportView({
             <div>
               <p className="text-sm font-medium text-gray-500 mb-1">صافي قيمة الطلبات</p>
               <h3 className="text-2xl font-bold text-gray-900">
-                {ordersData?.total_amount.toLocaleString("ar-SA") || 0} ر.س
+                {ordersData?.total_amount.toLocaleString("ar-SA") || 0} ر.ي
               </h3>
               <p className="text-xs text-gray-400 mt-1">القيمة الإجمالية للطلبات  </p>
             </div>

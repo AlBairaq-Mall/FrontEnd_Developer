@@ -52,7 +52,7 @@ export function CouponDetailsClient({ coupon }: { coupon: any }) {
             <div className="flex justify-between items-center py-2">
               <span className="text-gray-500">قيمة الخصم</span>
               <span className="font-bold text-brand text-lg">
-                {coupon.type === 'percentage' ? `%${coupon.value}` : `${coupon.value} ر.س`}
+                {coupon.type === 'percentage' ? `%${coupon.value}` : `${coupon.value} ر.ي`}
               </span>
             </div>
           </CardContent>
@@ -90,7 +90,7 @@ export function CouponDetailsClient({ coupon }: { coupon: any }) {
               <span className="text-gray-500 flex items-center gap-2">
                 <ShoppingBag className="w-4 h-4" /> الحد الأدنى للطلب
               </span>
-              <span className="font-bold text-gray-900">{coupon.minimum_order_amount} ر.س</span>
+              <span className="font-bold text-gray-900">{coupon.minimum_order_amount} ر.ي</span>
             </div>
           </CardContent>
         </Card>

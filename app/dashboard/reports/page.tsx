@@ -245,9 +245,9 @@ function ReportsContent() {
           return;
         }
         const dataToExport = [
-          { "المؤشر": "إجمالي المبيعات", "القيمة": `${salesData.total_sales} ر.س` },
+          { "المؤشر": "إجمالي المبيعات", "القيمة": `${salesData.total_sales} ر.ي` },
           { "المؤشر": "إجمالي الطلبات", "القيمة": `${salesData.total_orders} طلب` },
-          { "المؤشر": "إجمالي مبالغ الطلبات (باستثناء الملغاة)", "القيمة": `${ordersData.total_amount} ر.س` },
+          { "المؤشر": "إجمالي مبالغ الطلبات (باستثناء الملغاة)", "القيمة": `${ordersData.total_amount} ر.ي` },
           { "المؤشر": "الطلبات قيد الانتظار", "القيمة": ordersData.pending },
           { "المؤشر": "الطلبات المؤكدة", "القيمة": ordersData.confirmed },
           { "المؤشر": "الطلبات قيد التجهيز", "القيمة": ordersData.processing },
@@ -272,7 +272,7 @@ function ReportsContent() {
           "تم الشحن": d.shipped_orders,
           "تم التسليم": d.delivered_orders,
           "ملغي": d.cancelled_orders,
-          "إجمالي المبيعات (ر.س)": d.total_sales,
+          "إجمالي المبيعات (ر.ي)": d.total_sales,
         }));
         exportToCSV(dataToExport, `تقرير_أداء_المناديب_${fromDate}_إلى_${toDate}.csv`);
         toast.success("تم تصدير تقرير المناديب بنجاح");

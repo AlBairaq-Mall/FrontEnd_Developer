@@ -85,8 +85,8 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
                 <p className="font-medium text-lg">{product.unique_number}</p>
               </div>
               <div>
-                <h3 className="text-sm font-bold text-gray-400 uppercase mb-1">الباركود</h3>
-                <p className="font-medium text-lg">{product.barcode}</p>
+                <h3 className="text-sm font-bold text-gray-400 uppercase mb-1">عدد الوحدات</h3>
+                <p className="font-medium text-lg">{product.units?.length || 0}</p>
               </div>
               <div className="col-span-2">
                 <h3 className="text-sm font-bold text-gray-400 uppercase mb-1">القسم</h3>
@@ -123,12 +123,18 @@ export default async function ProductDetailsPage({ params }: { params: Promise<{
               {product.units.map((unit: any) => (
                 <div key={unit.id} className="bg-white border rounded-lg p-4 shadow-sm flex justify-between items-center">
                   <div>
-                    <h4 className="font-bold text-gray-900">{unit.name_ar}</h4>
-                    <p className="text-sm text-gray-500">{unit.name_en}</p>
+                    <h4 className="font-bold text-gray-900">{unit.name_ar} ({unit.name_en})</h4>
+                    <p className="text-xs text-gray-500 mt-1">الباركود: {unit.barcode || unit.pivot?.barcode || '-'}</p>
                   </div>
-                  <div className="text-left">
-                    <span className="block text-xs text-gray-400 uppercase">الكمية</span>
-                    <span className="font-bold text-xl text-brand">{unit.quantity}</span>
+                  <div className="text-left flex gap-4">
+                    <div>
+                      <span className="block text-[10px] text-gray-400 uppercase">الكمية</span>
+                      <span className="font-bold text-base text-gray-700">{unit.quantity}</span>
+                    </div>
+                    <div>
+                      <span className="block text-[10px] text-gray-400 uppercase">السعر</span>
+                      <span className="font-bold text-base text-brand">{unit.price || unit.pivot?.price || '-'} ر.ي</span>
+                    </div>
                   </div>
                 </div>
               ))}

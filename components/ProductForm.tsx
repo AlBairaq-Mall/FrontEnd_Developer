@@ -63,11 +63,11 @@ export function ProductForm({ initialData, isEditing = false }: ProductFormProps
             </CardHeader>
             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">السعر (ر.س)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">السعر (ر.ي)</label>
                 <Input type="number" defaultValue={initialData?.price} placeholder="0.00" />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">سعر التكلفة (ر.س)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">سعر التكلفة (ر.ي)</label>
                 <Input type="number" defaultValue={initialData?.cost} placeholder="0.00" />
               </div>
               <div>

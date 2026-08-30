@@ -278,24 +278,24 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                               </span>
                             )}
                           </div>
-                          {(item.product?.unique_number || item.product?.barcode) && (
+                          {(item.product?.unique_number || item.product?.barcode || item.product?.units?.find((u: any) => u.id === item.unit?.id)?.barcode) && (
                             <div className="text-xs text-gray-400 mt-1 flex flex-wrap gap-x-4 gap-y-1 font-normal font-mono">
                               {item.product?.unique_number && (
                                 <span className="flex items-center gap-1">
                                   <span className="text-gray-500 font-sans">رمز المنتج:</span> {item.product.unique_number}
                                 </span>
                               )}
-                              {item.product?.barcode && (
+                              {(item.product?.barcode || item.product?.units?.find((u: any) => u.id === item.unit?.id)?.barcode) && (
                                 <span className="flex items-center gap-1">
-                                  <span className="text-gray-500 font-sans">الباركود:</span> {item.product.barcode}
+                                  <span className="text-gray-500 font-sans">الباركود:</span> {item.product?.units?.find((u: any) => u.id === item.unit?.id)?.barcode || item.product?.barcode}
                                 </span>
                               )}
                             </div>
                           )}
                         </TableCell>
-                        <TableCell>{item.price} ر.س</TableCell>
+                        <TableCell>{item.price} ر.ي</TableCell>
                         <TableCell>{item.quantity}</TableCell>
-                        <TableCell className="font-bold">{item.total || (item.price * item.quantity)} ر.س</TableCell>
+                        <TableCell className="font-bold">{item.total || (item.price * item.quantity)} ر.ي</TableCell>
                       </TableRow>
                     ))
                   )}
@@ -306,7 +306,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               <div className="w-64 space-y-3 mt-4">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>المجموع الفرعي:</span>
-                  <span>{order.subtotal || 0} ر.س</span>
+                  <span>{order.subtotal || 0} ر.ي</span>
                 </div>
                 <div className="flex justify-between items-center text-sm text-gray-600 min-h-[32px]">
                   <span>رسوم التوصيل:</span>
@@ -322,7 +322,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                         className="w-20 text-right bg-white border border-gray-300 rounded px-1.5 py-0.5 text-xs focus:outline-none focus:ring-1 focus:ring-brand focus:border-transparent text-gray-900 font-mono"
                         autoFocus
                       />
-                      <span className="text-xs text-gray-500 font-sans">ر.س</span>
+                      <span className="text-xs text-gray-500 font-sans">ر.ي</span>
                       <button
                         type="button"
                         onClick={handleSaveDeliveryFee}
@@ -353,7 +353,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                           ? "غير محدد"
                           : order.delivery_fee === 0
                           ? "مجاني"
-                          : `${order.delivery_fee} ر.س`}
+                          : `${order.delivery_fee} ر.ي`}
                       </span>
                       <button
                         type="button"
@@ -374,24 +374,24 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
                       ? "غير محدد"
                       : order.delivery_fee === 0
                       ? "مجاني"
-                      : `${order.delivery_fee} ر.س`}
+                      : `${order.delivery_fee} ر.ي`}
                   </span>
                 </div>
                 {order.discount > 0 && (
                   <div className="flex justify-between text-sm text-red-600">
                     <span>الخصم العام:</span>
-                    <span>-{order.discount} ر.س</span>
+                    <span>-{order.discount} ر.ي</span>
                   </div>
                 )}
                 {order.coupon_discount !== undefined && order.coupon_discount > 0 && (
                   <div className="flex justify-between text-sm text-red-600">
                     <span>خصم الكوبون:</span>
-                    <span>-{order.coupon_discount} ر.س</span>
+                    <span>-{order.coupon_discount} ر.ي</span>
                   </div>
                 )}
                 <div className="pt-3 border-t border-gray-200 flex justify-between font-bold text-lg text-gray-900">
                   <span>الإجمالي:</span>
-                  <span>{order.total || 0} ر.س</span>
+                  <span>{order.total || 0} ر.ي</span>
                 </div>
               </div>
             </CardContent>
@@ -672,7 +672,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
               />
               <div className="mr-2">
                 <span className="font-bold text-gray-900 block">توصيل مجاني</span>
-                <span className="text-xs text-gray-500">سيتم إرسال قيمة التوصيل كـ 0 ر.س</span>
+                <span className="text-xs text-gray-500">سيتم إرسال قيمة التوصيل كـ 0 ر.ي</span>
               </div>
             </label>
 

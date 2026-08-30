@@ -183,7 +183,7 @@ function OrdersContent() {
                   <TableCell className="font-bold text-gray-900">{order.order_number || `#${order.id}`}</TableCell>
                   <TableCell>{order.user?.name || order.user?.first_name || "عميل غير معروف"}</TableCell>
                   <TableCell className="text-gray-500">{new Date(order.created_at).toLocaleDateString("ar-SA")}</TableCell>
-                  <TableCell className="font-bold">{order.total} ر.س</TableCell>
+                  <TableCell className="font-bold">{order.total} ر.ي</TableCell>
                   <TableCell>
                     {(() => {
                       const driverObj = order.delivery_driver || (order as any).driver;

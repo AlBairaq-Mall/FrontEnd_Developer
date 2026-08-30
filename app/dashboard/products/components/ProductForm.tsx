@@ -72,19 +72,20 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
 
   // State for dynamic units array
   // If editing, map existing units, else start with one empty unit
-  const [units, setUnits] = useState<{ id: string; unit_id: string; quantity: string; price: string }[]>(
+  const [units, setUnits] = useState<{ id: string; unit_id: string; quantity: string; price: string; barcode: string }[]>(
     initialData?.units?.length > 0
       ? initialData.units.map((u: any, idx: number) => ({
         id: Math.random().toString(),
         unit_id: u.id.toString(),
         quantity: u.quantity.toString(),
-        price: u.pivot?.price ? u.pivot.price.toString() : (u.price ? u.price.toString() : "")
+        price: u.pivot?.price ? u.pivot.price.toString() : (u.price ? u.price.toString() : ""),
+        barcode: u.barcode ? u.barcode.toString() : (u.pivot?.barcode ? u.pivot.barcode.toString() : "")
       }))
-      : [{ id: Math.random().toString(), unit_id: "", quantity: "1", price: "" }]
+      : [{ id: Math.random().toString(), unit_id: "", quantity: "1", price: "", barcode: "" }]
   );
 
   const addUnit = () => {
-    setUnits([...units, { id: Math.random().toString(), unit_id: "", quantity: "1", price: "" }]);
+    setUnits([...units, { id: Math.random().toString(), unit_id: "", quantity: "1", price: "", barcode: "" }]);
   };
 
   const removeUnit = (idToRemove: string) => {
@@ -93,7 +94,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
     }
   };
 
-  const updateUnitField = (id: string, field: "unit_id" | "quantity" | "price", value: string) => {
+  const updateUnitField = (id: string, field: "unit_id" | "quantity" | "price" | "barcode", value: string) => {
     setUnits(units.map(u => (u.id === id ? { ...u, [field]: value } : u)));
   };
 
@@ -123,6 +124,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
         formData.append(`units[${index}][unit_id]`, unit.unit_id);
         formData.append(`units[${index}][quantity]`, unit.quantity);
         formData.append(`units[${index}][price]`, unit.price);
+        formData.append(`units[${index}][barcode]`, unit.barcode);
       }
     });
 
@@ -228,7 +230,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                       ))}
                     </select>
                   </div>
-                  <div className="w-28">
+                  <div className="w-24">
                     <label className="block text-xs font-medium mb-1 text-gray-600">الكمية المقابلة</label>
                     <Input
                       type="number"
@@ -239,8 +241,18 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
                       required
                     />
                   </div>
+                  <div className="w-36">
+                    <label className="block text-xs font-medium mb-1 text-gray-600">الباركود *</label>
+                    <Input
+                      type="text"
+                      value={unit.barcode || ""}
+                      onChange={(e) => updateUnitField(unit.id, "barcode", e.target.value)}
+                      placeholder="الباركود الخاص بالوحدة"
+                      required
+                    />
+                  </div>
                   <div className="w-28">
-                    <label className="block text-xs font-medium mb-1 text-gray-600">سعر الوحدة (ر.س)</label>
+                    <label className="block text-xs font-medium mb-1 text-gray-600">سعر الوحدة (ر.ي)</label>
                     <Input
                       type="number"
                       min="0"
@@ -291,10 +303,7 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
               <Input name="unique_number" required defaultValue={initialData?.unique_number} />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium mb-1">الباركود *</label>
-              <Input name="barcode" required defaultValue={initialData?.barcode} />
-            </div>
+            {/* Main barcode input removed as it is now per-unit */}
 
             <div className="flex items-center gap-2 pt-2">
               <input

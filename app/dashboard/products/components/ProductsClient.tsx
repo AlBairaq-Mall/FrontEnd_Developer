@@ -10,6 +10,7 @@ import { deleteProduct, importProducts } from "@/lib/actions/products";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
+import { toast, Toaster } from "react-hot-toast";
 
 export function ProductsClient({ products }: { products: any[] }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -48,19 +49,33 @@ export function ProductsClient({ products }: { products: any[] }) {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    // Validate file type
+    const fileExtension = file.name.split('.').pop()?.toLowerCase();
+    if (!['xlsx', 'xls', 'csv'].includes(fileExtension || '')) {
+      toast.error("يرجى اختيار ملف إكسل (.xlsx, .xls) أو ملف CSV فقط");
+      return;
+    }
+
     const formData = new FormData();
     formData.append("file", file);
 
     setIsImporting(true);
-    const res = await importProducts(formData);
-    setIsImporting(false);
+    const loadingToast = toast.loading("جاري رفع واستيراد المنتجات...");
 
-    if (res.success) {
-      alert("تم استيراد المنتجات بنجاح");
-      // Reset the file input
-      e.target.value = '';
-    } else {
-      alert(res.error || "حدث خطأ أثناء استيراد المنتجات");
+    try {
+      const res = await importProducts(formData);
+      if (res.success) {
+        toast.success("تم استيراد المنتجات بنجاح", { id: loadingToast });
+        // Reset the file input
+        e.target.value = '';
+        router.refresh();
+      } else {
+        toast.error(res.error || "حدث خطأ أثناء استيراد المنتجات", { id: loadingToast });
+      }
+    } catch (error) {
+      toast.error("حدث خطأ غير متوقع أثناء استيراد المنتجات", { id: loadingToast });
+    } finally {
+      setIsImporting(false);
     }
   };
 
@@ -75,10 +90,12 @@ export function ProductsClient({ products }: { products: any[] }) {
     const res = await deleteProduct(selectedProduct.id);
     setIsDeleting(false);
     if (res.success) {
+      toast.success("تم حذف المنتج بنجاح");
       setIsDeleteModalOpen(false);
       setSelectedProduct(null);
+      router.refresh();
     } else {
-      alert(res.error || "حدث خطأ أثناء الحذف");
+      toast.error(res.error || "حدث خطأ أثناء الحذف");
     }
   };
 
@@ -88,6 +105,7 @@ export function ProductsClient({ products }: { products: any[] }) {
 
   return (
     <>
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">إدارة المنتجات</h2>
@@ -185,7 +203,17 @@ export function ProductsClient({ products }: { products: any[] }) {
                     <TableCell>
                       <div className="text-sm">
                         <p><strong>الرقم:</strong> {product.unique_number}</p>
-                        <p className="text-gray-500"><strong>الباركود:</strong> {product.barcode}</p>
+                        {product.units && product.units.length > 0 ? (
+                          <div className="text-xs text-gray-500 mt-1 space-y-0.5">
+                            {product.units.map((u: any) => (
+                              <p key={u.id}>
+                                <strong>{u.name_ar}:</strong> {u.barcode || u.pivot?.barcode || "-"}
+                              </p>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-gray-500"><strong>الباركود:</strong> {product.barcode || "-"}</p>
+                        )}
                       </div>
                     </TableCell>
                     <TableCell>

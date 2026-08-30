@@ -12,6 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDebounce } from "@/hooks/useDebounce";
+import { toast, Toaster } from "react-hot-toast";
 
 export function CouponsClient({ couponsData }: { couponsData: any[] }) {
   const router = useRouter();
@@ -64,9 +65,9 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
     startTransition(async () => {
       const result = await deleteCoupon(id);
       if (result.success) {
-        alert("تم حذف الكوبون بنجاح");
+        toast.success("تم حذف الكوبون بنجاح");
       } else {
-        alert(result.error || "فشل في حذف الكوبون");
+        toast.error(result.error || "فشل في حذف الكوبون");
       }
     });
   };
@@ -79,6 +80,7 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
 
   return (
     <div className="space-y-6">
+      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">الكوبونات والخصومات</h1>
@@ -170,7 +172,7 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
                       <button
                         onClick={() => {
                           navigator.clipboard.writeText(coupon.code);
-                          alert("تم نسخ الكود");
+                          toast.success("تم نسخ الكود بنجاح");
                         }}
                         className="text-gray-400 hover:text-brand transition-colors"
                         title="نسخ الكود"
@@ -180,7 +182,7 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
                     </div>
                   </TableCell>
                   <TableCell className="font-bold text-brand">
-                    {coupon.type === 'percentage' ? `%${coupon.value}` : `${coupon.value} ر.س`}
+                    {coupon.type === 'percentage' ? `%${coupon.value}` : `${coupon.value} ر.ي`}
                   </TableCell>
                   <TableCell>
                     <div className="flex flex-col gap-1 w-32">

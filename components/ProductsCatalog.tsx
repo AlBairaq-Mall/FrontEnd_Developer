@@ -22,6 +22,7 @@ export function ProductsCatalog({ initialProducts, categories, units }: Products
       product.name_ar?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.name_en?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       product.barcode?.includes(searchQuery) ||
+      product.units?.some((u: any) => u.barcode?.includes(searchQuery)) ||
       product.unique_number?.includes(searchQuery);
 
     const matchesCategory = 
@@ -196,7 +197,9 @@ export function ProductsCatalog({ initialProducts, categories, units }: Products
               {/* Content */}
               <div className="p-6 flex-grow flex flex-col justify-between">
                 <div className="space-y-2">
-                  <span className="text-xs font-semibold text-gray-400">باركود: {product.barcode || '-'}</span>
+                  <span className="text-xs font-semibold text-gray-400">
+                    باركود: {product.units?.map((u: any) => u.barcode).filter(Boolean).join(", ") || product.barcode || "-"}
+                  </span>
                   <h3 className="font-bold text-gray-900 text-lg leading-snug line-clamp-1">{product.name_ar}</h3>
                   <p className="text-gray-500 text-sm line-clamp-2 leading-relaxed">{product.name_en || '-'}</p>
                 </div>
