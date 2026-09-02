@@ -12,9 +12,11 @@ import { OfferFormModal } from "./components/OfferFormModal";
 import Link from "next/link";
 import { Select } from "@/components/ui/Select";
 import { Filter, Tag } from "lucide-react";
+import { Pagination } from "@/components/ui/Pagination";
 
 function OffersContent() {
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -44,12 +46,13 @@ function OffersContent() {
 
   async function loadOffers() {
     setLoading(true);
-    const paramsObj = Object.fromEntries(searchParams.entries());
+    const paramsObj = { per_page: "20", ...Object.fromEntries(searchParams.entries()) };
     const res = await getOffers(paramsObj);
     if (res.success && res.data) {
       // Handle array or pagination wrapper
       const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
       setOffers(dataArray);
+      setMeta(res.data.meta || null);
     }
     setLoading(false);
   }
@@ -266,6 +269,8 @@ function OffersContent() {
           </TableBody>
         </Table>
       </Card>
+
+      {meta && meta.last_page > 1 && <Pagination meta={meta} />}
 
       <Modal
         isOpen={isDeleteModalOpen}

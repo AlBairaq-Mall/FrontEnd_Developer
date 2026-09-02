@@ -11,6 +11,7 @@ import Link from "next/link";
 import { getOrders, Order, getUsersList } from "@/lib/actions/orders";
 import { CreateOrderModal } from "./components/CreateOrderModal";
 import { Select } from "@/components/ui/Select";
+import { Pagination } from "@/components/ui/Pagination";
 
 const getStatusColor = (status: string) => {
   switch (status) {
@@ -39,6 +40,7 @@ const getStatusName = (status: string) => {
 function OrdersContent() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<any[]>([]);
+  const [meta, setMeta] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   
@@ -64,12 +66,13 @@ function OrdersContent() {
 
   async function loadOrders() {
     setLoading(true);
-    const paramsObj = Object.fromEntries(searchParams.entries());
+    const paramsObj = { per_page: "20", ...Object.fromEntries(searchParams.entries()) };
     const res = await getOrders(paramsObj);
     if (res.success && res.data) {
       // API might return array directly or wrapped in { data: ... }
       const dataArray = Array.isArray(res.data) ? res.data : (res.data.data || []);
       setOrders(dataArray);
+      setMeta(res.data.meta || null);
     }
     setLoading(false);
   }
@@ -214,6 +217,8 @@ function OrdersContent() {
           </TableBody>
         </Table>
       </Card>
+
+      {meta && meta.last_page > 1 && <Pagination meta={meta} />}
     </div>
   );
 }

@@ -22,7 +22,7 @@ export default async function CategoriesPage({
   if (params.search) query.set("search", params.search);
   
   if (params.status !== undefined && params.status !== "") query.set("status", params.status);
-  if (params.per_page) query.set("per_page", params.per_page);
+  query.set("per_page", params.per_page || "20");
   if (params.paginate !== undefined) query.set("paginate", params.paginate);
 
   let data = [];

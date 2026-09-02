@@ -22,6 +22,7 @@ export default async function AdsPage({
   if (params.is_active !== undefined && params.is_active !== "") query.set("is_active", params.is_active);
   
   query.set("paginate", params.paginate ?? "true");
+  query.set("per_page", "20");
 
   let data = [];
   let meta = null;

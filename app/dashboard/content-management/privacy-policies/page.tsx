@@ -19,7 +19,7 @@ export default async function PrivacyPoliciesPage({
 
   if (params.search) query.set("search", params.search);
   if (params.status !== undefined && params.status !== "") query.set("status", params.status);
-  if (params.per_page) query.set("per_page", params.per_page);
+  query.set("per_page", params.per_page || "20");
   query.set("paginate", "true");
 
   let data = [];

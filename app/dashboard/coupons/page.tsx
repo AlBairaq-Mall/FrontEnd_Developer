@@ -21,7 +21,7 @@ export default async function CouponsPage({
   
   if (params.status !== undefined && params.status !== "") query.set("status", params.status);
   if (params.type !== undefined && params.type !== "") query.set("type", params.type);
-  if (params.per_page) query.set("per_page", params.per_page);
+  query.set("per_page", params.per_page || "20");
   
   // Default to false for paginate, or true based on typical requirements, 
   // but looking at cupones.txt it seems it accepts paginate=false

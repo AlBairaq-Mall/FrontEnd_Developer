@@ -20,6 +20,7 @@ export default async function ProductsPage({
   if (params.search) query.set("search", params.search);
   if (params.status !== undefined && params.status !== "") query.set("status", params.status);
   if (params.category_id !== undefined && params.category_id !== "") query.set("category_id", params.category_id);
+  query.set("per_page", "20");
 
   let data = [];
   let meta = null;

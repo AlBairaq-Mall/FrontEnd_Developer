@@ -18,7 +18,7 @@ export default async function AboutUsPage({
   else query.set("page", "1");
 
   if (params.search) query.set("search", params.search);
-  if (params.per_page) query.set("per_page", params.per_page);
+  query.set("per_page", params.per_page || "20");
   query.set("paginate", "true");
 
   let data = [];

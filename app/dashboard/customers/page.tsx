@@ -27,6 +27,7 @@ export default async function CustomersPage({
     if (search) query.set("search", search);
     if (role !== undefined && role !== "") query.set("role", role);
     if (status !== undefined && status !== "") query.set("status", status);
+    query.set("per_page", "20");
 
     const res = await fetchApi(`/users?${query.toString()}`);
     if (res.ok) {
