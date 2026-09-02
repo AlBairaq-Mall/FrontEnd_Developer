@@ -302,7 +302,7 @@ export function SearchableProductSelect({
                     setIsOpen(false);
                   }
                 }}
-                placeholder="اكتب اسم المنتج أو الباركود للبحث في السيرفر..."
+                placeholder="اكتب اسم المنتج أو الباركود للبحث"
                 className="w-full pr-11 pl-11 py-3 bg-white border border-gray-300 focus:border-brand rounded-xl text-sm font-medium focus:outline-none focus:ring-2 focus:ring-brand/30 shadow-sm placeholder:text-gray-400 transition-all"
               />
               
@@ -329,7 +329,7 @@ export function SearchableProductSelect({
               {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 ? (
                 <span className="inline-flex items-center gap-1.5 text-amber-700 bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60 font-medium">
                   <AlertCircle className="w-3.5 h-3.5" />
-                  <span>اكتب حرفين على الأقل للبحث في السيرفر</span>
+                  <span>اكتب حرفين على الأقل للبحث </span>
                 </span>
               ) : isLoading ? (
                 <span className="inline-flex items-center gap-1.5 text-brand bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60 font-medium">
