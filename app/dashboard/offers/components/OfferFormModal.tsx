@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { getOfferOptions, createOffer, updateOffer, OfferData, Offer } from "@/lib/actions/offers";
 import { Plus, Trash } from "lucide-react";
+import { SearchableProductSelect } from "@/components/ui/SearchableProductSelect";
 
 interface OfferFormModalProps {
   isOpen: boolean;
@@ -217,7 +218,7 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title={offerToEdit ? "تعديل العرض" : "إضافة عرض جديد"}>
+    <Modal isOpen={isOpen} onClose={onClose} title={offerToEdit ? "تعديل العرض" : "إضافة عرض جديد"} maxWidth="max-w-3xl lg:max-w-4xl">
       {loading ? (
         <div className="py-8 text-center text-gray-500">جاري تحميل البيانات...</div>
       ) : (
@@ -259,8 +260,11 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
           </div>
 
           <div className="border-t pt-4">
-            <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-bold text-gray-900">المنتجات المشمولة في العرض</label>
+            <div className="flex justify-between items-center mb-3">
+              <div>
+                <label className="block text-sm font-bold text-gray-900">المنتجات المشمولة في العرض</label>
+                <p className="text-xs text-gray-500 mt-0.5">ابحث عن المنتجات وأضفها للعرض وحدد الوحدة المناسبة لكل منتج</p>
+              </div>
               <Button type="button" variant="outline" size="sm" onClick={addProductRow} className="gap-2">
                 <Plus className="w-4 h-4" /> إضافة منتج آخر
               </Button>
@@ -268,25 +272,21 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
 
             <div className="space-y-3">
               {productsList.map((prod, index) => (
-                <div key={index} className="flex flex-col md:flex-row gap-3 items-start md:items-center bg-gray-50 p-3 rounded-lg border">
+                <div key={index} className="flex flex-col md:flex-row gap-3 items-start md:items-center bg-gray-50 p-3.5 rounded-xl border border-gray-200 shadow-sm transition-all hover:border-gray-300">
                   <div className="flex-1 w-full">
-                    <label className="block text-xs text-gray-500 mb-1">المنتج</label>
-                    <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">المنتج</label>
+                    <SearchableProductSelect
+                      products={options.products}
                       value={prod.product_id}
-                      onChange={(e) => handleProductChange(index, "product_id", e.target.value)}
+                      onChange={(val) => handleProductChange(index, "product_id", val)}
+                      placeholder="ابحث بالاسم أو الباركود..."
                       required
-                    >
-                      <option value="">-- اختر المنتج --</option>
-                      {options.products.map((p: any) => (
-                        <option key={p.id} value={p.id}>{p.name_ar || p.name || p.title || `منتج #${p.id}`}</option>
-                      ))}
-                    </select>
+                    />
                   </div>
                   <div className="flex-1 w-full">
-                    <label className="block text-xs text-gray-500 mb-1">الوحدة</label>
+                    <label className="block text-xs font-semibold text-gray-600 mb-1">الوحدة</label>
                     <select
-                      className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand text-sm"
+                      className="w-full min-h-[48px] border border-gray-300 rounded-xl px-3 py-2.5 focus:outline-none focus:ring-2 focus:ring-brand/30 focus:border-brand text-sm bg-white shadow-sm transition-all hover:border-brand/70"
                       value={prod.unit_id}
                       onChange={(e) => handleProductChange(index, "unit_id", e.target.value)}
                       required
@@ -302,13 +302,14 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
                     </select>
                   </div>
                   {productsList.length > 1 && (
-                    <div className="mt-5">
+                    <div className="md:mt-6">
                       <button
                         type="button"
                         onClick={() => removeProductRow(index)}
-                        className="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        className="p-3 text-red-500 hover:bg-red-50 rounded-xl border border-transparent hover:border-red-200 transition-colors"
+                        title="حذف المنتج من القائمة"
                       >
-                        <Trash className="w-4 h-4" />
+                        <Trash className="w-5 h-5" />
                       </button>
                     </div>
                   )}
@@ -362,20 +363,16 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">المنتج المهدي (المجاني)</label>
-                      <select
-                        className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-brand"
+                      <SearchableProductSelect
+                        products={options.products}
                         value={giftProductId}
-                        onChange={(e) => {
-                          setGiftProductId(e.target.value);
+                        onChange={(val) => {
+                          setGiftProductId(val);
                           setGiftUnitId("");
                         }}
+                        placeholder="ابحث واختر منتج الهدية..."
                         required
-                      >
-                        <option value="">-- اختر منتج الهدية --</option>
-                        {options.products.map((p: any) => (
-                          <option key={p.id} value={p.id}>{p.name_ar || p.name || p.title || `منتج #${p.id}`}</option>
-                        ))}
-                      </select>
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-medium text-gray-700 mb-1">وحدة منتج الهدية</label>

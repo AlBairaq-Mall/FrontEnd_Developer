@@ -113,3 +113,33 @@ export async function importProducts(formData: FormData) {
     return { success: false, error: "An unexpected error occurred." };
   }
 }
+
+export async function searchProducts(searchQuery: string = "") {
+  try {
+    const params = new URLSearchParams();
+    if (searchQuery && searchQuery.trim()) {
+      params.set("search", searchQuery.trim());
+    }
+    params.set("limit", "50");
+    params.set("per_page", "50");
+
+    const response = await fetchApi(`/products?${params.toString()}`, {
+      method: "GET",
+    });
+
+    if (!response.ok) {
+      console.error("Failed to search products from API, status:", response.status);
+      return { success: false, data: [] };
+    }
+
+    const json = await response.json();
+    return {
+      success: true,
+      data: Array.isArray(json) ? json : (json.data || []),
+    };
+  } catch (error) {
+    console.error("Error searching products from API:", error);
+    return { success: false, data: [] };
+  }
+}
+
