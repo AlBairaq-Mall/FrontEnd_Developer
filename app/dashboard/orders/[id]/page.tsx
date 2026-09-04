@@ -10,6 +10,7 @@ import { getOrder, Order, updateOrderStatus, assignDeliveryDriver, getDeliveryDr
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { toast } from "react-hot-toast";
 
 const getStatusBadge = (status: string) => {
   switch (status) {
@@ -67,8 +68,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     const res = await updateOrderStatus(order.id, newStatus);
     if (res.success) {
       setOrder({ ...order, status: newStatus as any });
+      toast.success("تم تحديث حالة الطلب بنجاح");
     } else {
-      alert(res.error || "فشل تحديث الحالة");
+      toast.error(res.error || "فشل تحديث الحالة");
     }
     setUpdatingStatus(false);
   };
@@ -80,7 +82,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     const fee = deliveryFeeType === "free" ? 0 : Number(customDeliveryFee);
 
     if (deliveryFeeType === "custom" && (isNaN(fee) || fee < 0)) {
-      alert("الرجاء إدخال مبلغ توصيل صحيح");
+      toast.error("الرجاء إدخال مبلغ توصيل صحيح");
       return;
     }
 
@@ -101,8 +103,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         } else {
           setOrder({ ...order, delivery_fee: fee, status: pendingStatus as any });
         }
+        toast.success("تم تأكيد الطلب وتعيين رسوم التوصيل بنجاح");
       } else {
-        alert(statusRes.error || "فشل تحديث الحالة بعد تعيين سعر التوصيل");
+        toast.error(statusRes.error || "فشل تحديث الحالة بعد تعيين سعر التوصيل");
         // Refetch to sync the delivery fee
         const freshOrder = await getOrder(order.id);
         if (freshOrder.success && freshOrder.data) {
@@ -111,7 +114,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         }
       }
     } else {
-      alert(feeRes.error || "فشل تحديث سعر التوصيل");
+      toast.error(feeRes.error || "فشل تحديث سعر التوصيل");
     }
 
     setUpdatingStatus(false);
@@ -125,8 +128,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     if (res.success) {
       const assignedDriver = drivers.find(d => d.id.toString() === driverId);
       setOrder({ ...order, delivery_driver_id: parseInt(driverId), delivery_driver: assignedDriver });
+      toast.success("تم تعيين مندوب التوصيل بنجاح");
     } else {
-      alert(res.error || "فشل تعيين المندوب");
+      toast.error(res.error || "فشل تعيين المندوب");
     }
     setAssigningDriver(false);
   };
@@ -135,7 +139,7 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
     if (!order) return;
     const fee = Number(tempDeliveryFee);
     if (isNaN(fee) || fee < 0) {
-      alert("الرجاء إدخال مبلغ توصيل صحيح");
+      toast.error("الرجاء إدخال مبلغ توصيل صحيح");
       return;
     }
 
@@ -151,8 +155,9 @@ export default function OrderDetailsPage({ params }: { params: Promise<{ id: str
         setOrder({ ...order, delivery_fee: fee });
       }
       setIsEditingDeliveryFee(false);
+      toast.success("تم تحديث رسوم التوصيل بنجاح");
     } else {
-      alert(res.error || "فشل تحديث سعر التوصيل");
+      toast.error(res.error || "فشل تحديث سعر التوصيل");
     }
     setUpdatingDeliveryFee(false);
   };

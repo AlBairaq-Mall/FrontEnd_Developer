@@ -1,5 +1,6 @@
 import Sidebar from "@/components/Sidebar";
 import Header from "@/components/Header";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 export const dynamic = "force-dynamic";
 export default function DashboardLayout({
@@ -9,6 +10,7 @@ export default function DashboardLayout({
 }>) {
   return (
     <div className="flex w-full h-screen">
+      <ToastProvider />
       <div className="print:hidden">
         <Sidebar />
       </div>

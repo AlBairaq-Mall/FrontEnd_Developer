@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Trash2, Plus, Upload, X } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 interface ProductFormProps {
   initialData?: any;
@@ -154,10 +155,13 @@ export function ProductForm({ initialData, categories, availableUnits }: Product
     setIsPending(false);
 
     if (res.success) {
+      toast.success(initialData?.id ? "تم تحديث المنتج بنجاح" : "تم إضافة المنتج بنجاح");
       router.push("/dashboard/products");
       router.refresh();
     } else {
-      setError(res.error || "حدث خطأ غير متوقع");
+      const errMsg = res.error || "حدث خطأ غير متوقع";
+      setError(errMsg);
+      toast.error(errMsg);
     }
   }
 

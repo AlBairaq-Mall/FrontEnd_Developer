@@ -12,6 +12,7 @@ import { Edit, Trash2, Ban, CheckCircle, Plus, Loader2, MapPin, Filter, Search }
 import { createUser, updateUser, deleteUser } from "../actions";
 import { Select } from "@/components/ui/Select";
 import { useDebounce } from "@/hooks/useDebounce";
+import { toast } from "react-hot-toast";
 
 interface User {
   id: number;
@@ -120,7 +121,9 @@ export function CustomersClient({ users }: CustomersClientProps) {
     setFormError("");
 
     if (formData.password && formData.password !== formData.password_confirmation) {
-      setFormError("كلمة المرور وتأكيدها غير متطابقين");
+      const msg = "كلمة المرور وتأكيدها غير متطابقين";
+      setFormError(msg);
+      toast.error(msg);
       return;
     }
 
@@ -134,7 +137,9 @@ export function CustomersClient({ users }: CustomersClientProps) {
 
       if (result?.error) {
         setFormError(result.error);
+        toast.error(result.error);
       } else {
+        toast.success(editingUser ? "تم تحديث بيانات العميل بنجاح" : "تم إضافة العميل بنجاح");
         setIsFormOpen(false);
       }
     });
@@ -148,7 +153,9 @@ export function CustomersClient({ users }: CustomersClientProps) {
       const result = await deleteUser(userToDelete.id);
       if (result?.error) {
         setDeleteError(result.error);
+        toast.error(result.error);
       } else {
+        toast.success("تم حذف حساب العميل بنجاح");
         setIsDeleteOpen(false);
         setUserToDelete(null);
       }
@@ -157,13 +164,18 @@ export function CustomersClient({ users }: CustomersClientProps) {
 
   const toggleUserStatus = async (user: User) => {
     startTransition(async () => {
-      await updateUser(user.id, {
+      const res = await updateUser(user.id, {
         name: user.name,
         email: user.email,
         phone: user.phone || undefined,
         role: user.role,
         is_active: !user.is_active,
       });
+      if (res?.error) {
+        toast.error(res.error || "فشل تغيير حالة العميل");
+      } else {
+        toast.success(user.is_active ? "تم تعطيل حساب العميل بنجاح" : "تم تفعيل حساب العميل بنجاح");
+      }
     });
   };
 

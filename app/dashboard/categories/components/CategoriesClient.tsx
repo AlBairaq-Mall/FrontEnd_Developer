@@ -12,6 +12,7 @@ import { deleteCategory } from "@/lib/actions/categories";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
+import { toast } from "react-hot-toast";
 
 export function CategoriesClient({ categories }: { categories: any[] }) {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -69,10 +70,11 @@ export function CategoriesClient({ categories }: { categories: any[] }) {
     const res = await deleteCategory(selectedCategory.id);
     setIsDeleting(false);
     if (res.success) {
+      toast.success("تم حذف القسم بنجاح");
       setIsDeleteModalOpen(false);
       setSelectedCategory(null);
     } else {
-      alert(res.error || "حدث خطأ أثناء الحذف");
+      toast.error(res.error || "حدث خطأ أثناء الحذف");
     }
   };
 

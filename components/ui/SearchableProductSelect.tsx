@@ -331,7 +331,7 @@ export function SearchableProductSelect({
                   <AlertCircle className="w-3.5 h-3.5" />
                   <span>اكتب حرفين على الأقل للبحث </span>
                 </span>
-              ) : isLoading ? (
+              ) : isLoading ? ( 
                 <span className="inline-flex items-center gap-1.5 text-brand bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200/60 font-medium">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>يبدأ البحث بعد ثانيتين من التوقف عن الكتابة...</span>

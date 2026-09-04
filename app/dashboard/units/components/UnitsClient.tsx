@@ -12,6 +12,7 @@ import { deleteUnit } from "@/lib/actions/units";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
+import { toast } from "react-hot-toast";
 
 export function UnitsClient({ units }: { units: any[] }) {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -69,10 +70,11 @@ export function UnitsClient({ units }: { units: any[] }) {
     const res = await deleteUnit(selectedUnit.id);
     setIsDeleting(false);
     if (res.success) {
+      toast.success("تم حذف الوحدة بنجاح");
       setIsDeleteModalOpen(false);
       setSelectedUnit(null);
     } else {
-      alert(res.error || "حدث خطأ أثناء الحذف");
+      toast.error(res.error || "حدث خطأ أثناء الحذف");
     }
   };
 

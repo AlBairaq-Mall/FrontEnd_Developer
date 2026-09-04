@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Button } from "@/components/ui/Button";
 import { createCoupon, updateCoupon } from "@/lib/actions/coupons";
+import { toast } from "react-hot-toast";
 
 interface CouponFormProps {
   initialData?: any;
@@ -50,10 +51,10 @@ export function CouponForm({ initialData, onSuccess, onCancel }: CouponFormProps
       }
 
       if (result.success) {
-        alert(initialData?.id ? "تم التحديث بنجاح" : "تم الإنشاء بنجاح");
+        toast.success(initialData?.id ? "تم تحديث الكوبون بنجاح" : "تم إنشاء الكوبون بنجاح");
         onSuccess();
       } else {
-        alert(result.error || "حدث خطأ أثناء حفظ الكوبون");
+        toast.error(result.error || "حدث خطأ أثناء حفظ الكوبون");
       }
     });
   };

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/Input";
 import { getOfferOptions, createOffer, updateOffer, OfferData, Offer } from "@/lib/actions/offers";
 import { Plus, Trash } from "lucide-react";
 import { SearchableProductSelect } from "@/components/ui/SearchableProductSelect";
+import { toast } from "react-hot-toast";
 
 interface OfferFormModalProps {
   isOpen: boolean;
@@ -204,6 +205,7 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
     }
 
     if (res.success) {
+      toast.success(offerToEdit ? "تم تحديث العرض بنجاح" : "تم إضافة العرض بنجاح");
       onSuccess();
       onClose();
     } else {
@@ -213,6 +215,7 @@ export function OfferFormModal({ isOpen, onClose, onSuccess, offerToEdit }: Offe
         errorMessage += ` (${errors})`;
       }
       setError(errorMessage);
+      toast.error(errorMessage);
     }
     setSubmitting(false);
   };

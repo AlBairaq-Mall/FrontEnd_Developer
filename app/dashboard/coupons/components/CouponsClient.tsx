@@ -12,7 +12,7 @@ import { Select } from "@/components/ui/Select";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useDebounce } from "@/hooks/useDebounce";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 export function CouponsClient({ couponsData }: { couponsData: any[] }) {
   const router = useRouter();
@@ -22,6 +22,9 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
   const debouncedSearch = useDebounce(searchTerm, 2000);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCoupon, setEditingCoupon] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [couponToDelete, setCouponToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isNavigating, startNavigation] = useTransition();
 
@@ -59,17 +62,24 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string | number) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا الكوبون؟")) return;
+  const handleOpenDelete = (coupon: any) => {
+    setCouponToDelete(coupon);
+    setIsDeleteModalOpen(true);
+  };
 
-    startTransition(async () => {
-      const result = await deleteCoupon(id);
-      if (result.success) {
-        toast.success("تم حذف الكوبون بنجاح");
-      } else {
-        toast.error(result.error || "فشل في حذف الكوبون");
-      }
-    });
+  const confirmDelete = async () => {
+    if (!couponToDelete) return;
+    setIsDeleting(true);
+
+    const result = await deleteCoupon(couponToDelete.id);
+    if (result.success) {
+      toast.success("تم حذف الكوبون بنجاح");
+      setIsDeleteModalOpen(false);
+      setCouponToDelete(null);
+    } else {
+      toast.error(result.error || "فشل في حذف الكوبون");
+    }
+    setIsDeleting(false);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +90,6 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
 
   return (
     <div className="space-y-6">
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">الكوبونات والخصومات</h1>
@@ -223,8 +232,8 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(coupon.id)}
-                        disabled={isPending}
+                        onClick={() => handleOpenDelete(coupon)}
+                        disabled={isPending || isDeleting}
                         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-colors disabled:opacity-50"
                         title="حذف"
                       >
@@ -257,6 +266,33 @@ export function CouponsClient({ couponsData }: { couponsData: any[] }) {
           onSuccess={() => setIsModalOpen(false)}
           onCancel={() => setIsModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="تأكيد حذف الكوبون"
+      >
+        <div className="p-4" dir="rtl">
+          <p className="mb-6">
+            هل أنت متأكد من رغبتك في حذف الكوبون <strong>{couponToDelete?.code}</strong>؟ لا يمكن التراجع عن هذا الإجراء.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? "جاري الحذف..." : "حذف"}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

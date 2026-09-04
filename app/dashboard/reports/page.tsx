@@ -10,7 +10,7 @@ import {
   Loader2,
   Printer
 } from "lucide-react";
-import toast, { Toaster } from "react-hot-toast";
+import toast from "react-hot-toast";
 
 // Actions & Types
 import {
@@ -297,8 +297,6 @@ function ReportsContent() {
 
   return (
     <div className="space-y-6 relative min-h-screen">
-      <Toaster position="top-center" />
-
       {/* Print Only Header */}
       <div className="hidden print:block border-b-2 border-gray-200 pb-4 mb-6 text-right">
         <h1 className="text-3xl font-bold text-gray-900">مجمع البيرق - تقرير إدارة المتجر</h1>

@@ -13,6 +13,7 @@ import Link from "next/link";
 import { Select } from "@/components/ui/Select";
 import { Filter, Tag } from "lucide-react";
 import { Pagination } from "@/components/ui/Pagination";
+import { toast } from "react-hot-toast";
 
 function OffersContent() {
   const [offers, setOffers] = useState<Offer[]>([]);
@@ -71,11 +72,12 @@ function OffersContent() {
     setDeletingId(offerToDelete.id);
     const res = await deleteOffer(offerToDelete.id);
     if (res.success) {
+      toast.success("تم حذف العرض بنجاح");
       loadOffers();
       setIsDeleteModalOpen(false);
       setOfferToDelete(null);
     } else {
-      alert(res.error || "حدث خطأ أثناء حذف العرض");
+      toast.error(res.error || "حدث خطأ أثناء حذف العرض");
     }
     setDeletingId(null);
   };

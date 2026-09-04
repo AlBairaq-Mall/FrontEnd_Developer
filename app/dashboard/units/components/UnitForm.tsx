@@ -4,6 +4,7 @@ import { useState, useRef } from "react";
 import { createUnit, updateUnit } from "@/lib/actions/units";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { toast } from "react-hot-toast";
 
 interface UnitFormProps {
   initialData?: any;
@@ -35,9 +36,12 @@ export function UnitForm({ initialData, onSuccess, onCancel }: UnitFormProps) {
     setIsPending(false);
 
     if (res.success) {
+      toast.success(initialData?.id ? "تم تحديث الوحدة بنجاح" : "تم إضافة الوحدة بنجاح");
       onSuccess();
     } else {
-      setError(res.error || "حدث خطأ غير متوقع");
+      const errMsg = res.error || "حدث خطأ غير متوقع";
+      setError(errMsg);
+      toast.error(errMsg);
     }
   }
 

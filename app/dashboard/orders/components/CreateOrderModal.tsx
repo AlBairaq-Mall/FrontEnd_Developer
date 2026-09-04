@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { getOrderOptions, createOrder, CreateOrderData } from "@/lib/actions/orders";
 import { Plus, Trash } from "lucide-react";
+import { toast } from "react-hot-toast";
 
 interface CreateOrderModalProps {
   isOpen: boolean;
@@ -89,23 +90,31 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
     setError(null);
 
     if (!selectedUserId) {
-      setError("الرجاء اختيار العميل.");
+      const msg = "الرجاء اختيار العميل.";
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
     if (!locationId) {
-      setError("الرجاء اختيار العنوان (الموقع).");
+      const msg = "الرجاء اختيار العنوان (الموقع).";
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
     if (items.length === 0) {
-      setError("الرجاء إضافة منتج واحد على الأقل.");
+      const msg = "الرجاء إضافة منتج واحد على الأقل.";
+      setError(msg);
+      toast.error(msg);
       return;
     }
 
     for (let i = 0; i < items.length; i++) {
       if (!items[i].product_id || !items[i].unit_id || items[i].quantity <= 0) {
-        setError("الرجاء إكمال بيانات جميع المنتجات بشكل صحيح.");
+        const msg = "الرجاء إكمال بيانات جميع المنتجات بشكل صحيح.";
+        setError(msg);
+        toast.error(msg);
         return;
       }
     }
@@ -127,10 +136,13 @@ export function CreateOrderModal({ isOpen, onClose, onSuccess }: CreateOrderModa
 
     const res = await createOrder(payload);
     if (res.success) {
+      toast.success("تم إنشاء الطلب بنجاح");
       onSuccess();
       onClose();
     } else {
-      setError(res.error || "حدث خطأ أثناء إنشاء الطلب.");
+      const errMsg = res.error || "حدث خطأ أثناء إنشاء الطلب.";
+      setError(errMsg);
+      toast.error(errMsg);
     }
     setSubmitting(false);
   };

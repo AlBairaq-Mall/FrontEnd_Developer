@@ -10,7 +10,7 @@ import { deleteProduct, importProducts } from "@/lib/actions/products";
 import Link from "next/link";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
-import { toast, Toaster } from "react-hot-toast";
+import { toast } from "react-hot-toast";
 
 export function ProductsClient({ products }: { products: any[] }) {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -105,7 +105,6 @@ export function ProductsClient({ products }: { products: any[] }) {
 
   return (
     <>
-      <Toaster position="top-center" reverseOrder={false} />
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-gray-900">إدارة المنتجات</h2>

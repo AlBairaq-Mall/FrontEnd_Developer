@@ -23,6 +23,9 @@ export function AdsClient({ adsData }: { adsData: any[] }) {
   const debouncedSearch = useDebounce(searchTerm, 2000);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingAd, setEditingAd] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [adToDelete, setAdToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [isNavigating, startNavigation] = useTransition();
 
@@ -59,17 +62,24 @@ export function AdsClient({ adsData }: { adsData: any[] }) {
     setIsModalOpen(true);
   };
 
-  const handleDelete = (id: string | number) => {
-    if (!window.confirm("هل أنت متأكد من حذف هذا الإعلان؟")) return;
+  const handleOpenDelete = (ad: any) => {
+    setAdToDelete(ad);
+    setIsDeleteModalOpen(true);
+  };
 
-    startTransition(async () => {
-      const result = await deleteAd(id);
-      if (result.success) {
-        toast.success("تم حذف الإعلان بنجاح");
-      } else {
-        toast.error(result.error || "فشل في حذف الإعلان");
-      }
-    });
+  const confirmDelete = async () => {
+    if (!adToDelete) return;
+    setIsDeleting(true);
+
+    const result = await deleteAd(adToDelete.id);
+    if (result.success) {
+      toast.success("تم حذف الإعلان بنجاح");
+      setIsDeleteModalOpen(false);
+      setAdToDelete(null);
+    } else {
+      toast.error(result.error || "فشل في حذف الإعلان");
+    }
+    setIsDeleting(false);
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,8 +214,8 @@ export function AdsClient({ adsData }: { adsData: any[] }) {
                         <Edit className="w-4 h-4" />
                       </button>
                       <button
-                        onClick={() => handleDelete(ad.id)}
-                        disabled={isPending}
+                        onClick={() => handleOpenDelete(ad)}
+                        disabled={isDeleting}
                         className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-md transition-all hover:scale-110 active:scale-95 disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                         title="حذف"
                       >
@@ -238,6 +248,33 @@ export function AdsClient({ adsData }: { adsData: any[] }) {
           onSuccess={() => setIsModalOpen(false)}
           onCancel={() => setIsModalOpen(false)}
         />
+      </Modal>
+
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        title="تأكيد حذف الإعلان"
+      >
+        <div className="p-4" dir="rtl">
+          <p className="mb-6">
+            هل أنت متأكد من رغبتك في حذف الإعلان <strong>{adToDelete?.title_ar || adToDelete?.title_en || "المحدد"}</strong>؟ لا يمكن التراجع عن هذا الإجراء.
+          </p>
+          <div className="flex justify-end gap-3">
+            <button
+              onClick={() => setIsDeleteModalOpen(false)}
+              className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition-colors"
+            >
+              إلغاء
+            </button>
+            <button
+              onClick={confirmDelete}
+              disabled={isDeleting}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50"
+            >
+              {isDeleting ? "جاري الحذف..." : "حذف"}
+            </button>
+          </div>
+        </div>
       </Modal>
     </div>
   );
