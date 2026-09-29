@@ -1,10 +1,12 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-brand: #df9f00;
-  --color-brand-dark: #b38000;
+  --color-brand: #db702c;
+  --color-brand-dark: #b8591d;
+  --color-brand-light: #fff7ed;
+  --color-brand-accent: #ea7a35;
   --color-sidebar: #111111;
-  --color-sidebar-hover: #222222;
+  --color-sidebar-hover: #1e1e1e;
   --font-cairo: var(--font-cairo);
 }
 
@@ -40,13 +42,23 @@
 }
 
 @utility text-gradient-gold {
-  background: linear-gradient(135deg, #df9f00 0%, #b38000 50%, #ffd700 100%);
+  background: linear-gradient(135deg, #ff8a3d 0%, #db702c 50%, #b8591d 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+@utility text-gradient-brand {
+  background: linear-gradient(135deg, #ff8a3d 0%, #db702c 50%, #b8591d 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
 @utility bg-gradient-gold {
-  background: linear-gradient(135deg, #df9f00 0%, #b38000 100%);
+  background: linear-gradient(135deg, #ea7a35 0%, #db702c 50%, #b8591d 100%);
+}
+
+@utility bg-gradient-brand {
+  background: linear-gradient(135deg, #ea7a35 0%, #db702c 50%, #b8591d 100%);
 }
 
 @utility bg-gradient-dark {

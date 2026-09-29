@@ -1,10 +1,23 @@
 import { Cairo } from "next/font/google";
 import "./globals.css";
 
+import type { Metadata } from "next";
+
 const cairo = Cairo({
   variable: "--font-cairo",
   subsets: ["arabic", "latin"],
 });
+
+export const metadata: Metadata = {
+  title: {
+    default: "كفو ماركت | تسوق ذكي وتوصيل سريع",
+    template: "%s | كفو ماركت",
+  },
+  description: "المتجر الرسمي لكفو ماركت - تسوق ذكي، عروض حصرية، وأفضل تجربة تسوق",
+  icons: {
+    icon: "/favicon.ico",
+  },
+};
 
 
 

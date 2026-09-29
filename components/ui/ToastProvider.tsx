@@ -51,12 +51,12 @@ export function ToastProvider() {
         loading: {
           style: {
             background: "#ffffff",
-            color: "#92400e",
-            border: "1px solid #df9f0033",
-            boxShadow: "0 12px 28px -4px rgba(223, 159, 0, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(223, 159, 0, 0.15)",
+            color: "#9a3412",
+            border: "1px solid #db702c33",
+            boxShadow: "0 12px 28px -4px rgba(219, 112, 44, 0.15), 0 4px 6px -2px rgba(0, 0, 0, 0.05), 0 0 0 1px rgba(219, 112, 44, 0.15)",
           },
           iconTheme: {
-            primary: "#df9f00",
+            primary: "#db702c",
             secondary: "#ffffff",
           },
         },

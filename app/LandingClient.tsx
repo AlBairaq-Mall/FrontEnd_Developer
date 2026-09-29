@@ -101,8 +101,8 @@ export function LandingClient({
       type: "email",
       title_ar: "البريد الإلكتروني",
       title_en: "Email Address",
-      value_ar: "info@al-bairaq.com",
-      value_en: "info@al-bairaq.com",
+      value_ar: "info@kafo-market.com",
+      value_en: "info@kafo-market.com",
     },
     {
       id: "def-loc",
@@ -145,19 +145,21 @@ export function LandingClient({
           {/* Logo and Brand Name */}
           <div className="flex items-center gap-3">
             <Link href="/" className="flex items-center gap-3 group">
-              <div className="bg-white p-1.5 rounded-xl shadow-md transition-transform duration-300 group-hover:scale-105">
+              <div className="bg-black/80 p-1.5 px-2.5 rounded-xl shadow-md border border-brand/30 transition-transform duration-300 group-hover:scale-105 flex items-center justify-center">
                 <Image
-                  src="/logo.png"
-                  alt="البيرق ماركت"
-                  width={42}
+                  src="/logo_kafo.jpeg"
+                  alt="كفو ماركت"
+                  width={70}
                   height={42}
-                  className="object-contain"
+                  className="h-9 w-auto object-contain rounded-md"
                   priority
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-xl font-bold text-gradient-gold tracking-wide leading-tight">البيرق ماركت</span>
-                <span className="text-[10px] text-gray-400 -mt-1 font-semibold">AL-BAIRAQ MARKET</span>
+                <span className="text-xl font-extrabold text-white tracking-wide leading-tight">
+                  كفو <span className="text-brand">ماركت</span>
+                </span>
+                <span className="text-[10px] text-brand/80 font-bold tracking-widest uppercase">KAFO MARKET</span>
               </div>
             </Link>
           </div>
@@ -294,7 +296,7 @@ export function LandingClient({
         <div className="absolute inset-0 z-0">
           <Image
             src="/bg_hero.jpg"
-            alt="البيرق ماركت"
+            alt="كفو ماركت"
             fill
             sizes="100vw"
             className="object-cover opacity-35"
@@ -312,7 +314,7 @@ export function LandingClient({
             <div className="lg:col-span-7 text-right space-y-8 lg:pr-4">
               <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand/10 border border-brand/25 text-brand text-xs font-semibold backdrop-blur-md shadow-sm">
                 <Sparkles className="w-3.5 h-3.5" />
-                <span>تطبيق البيرق الذكي متوفر الآن</span>
+                <span>تطبيق كفو الذكي متوفر الآن</span>
               </div>
               
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight">
@@ -370,8 +372,8 @@ export function LandingClient({
             <div className="lg:col-span-5 flex items-center justify-center relative w-full">
               <div className="relative w-full max-w-[540px] lg:max-w-none flex items-center justify-center">
                 
-                {/* Ambient Golden Glow */}
-                <div className="absolute -inset-4 bg-gradient-to-tr from-brand/35 via-yellow-500/20 to-brand/10 blur-3xl rounded-3xl opacity-80 pointer-events-none -z-10 animate-pulse"></div>
+                {/* Ambient Glow */}
+                <div className="absolute -inset-4 bg-gradient-to-tr from-brand/35 via-orange-500/20 to-brand/10 blur-3xl rounded-3xl opacity-80 pointer-events-none -z-10 animate-pulse"></div>
                 
                 {/* Premium Frame Wrapper */}
                 <div
@@ -381,8 +383,8 @@ export function LandingClient({
                   {/* Image container with fixed intrinsic aspect ratio */}
                   <div className="relative w-full rounded-2xl overflow-hidden bg-black/50 border border-white/10 shadow-inner flex items-center justify-center">
                     <Image
-                      src="/hero_mockup.jpg"
-                      alt="تطبيق البيرق ماركت والتسوق الفاخر"
+                      src="/hero_kafo_mockup.jpg"
+                      alt="تطبيق كفو ماركت والتسوق الذكي"
                       width={680}
                       height={520}
                       className="w-full h-auto object-contain object-center transition-transform duration-700 group-hover:scale-105 rounded-2xl block"
@@ -391,15 +393,7 @@ export function LandingClient({
                     {/* Soft reflective lighting overlay */}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-white/10 pointer-events-none rounded-2xl"></div>
                   </div>
-
-                  {/* Floating Badge 1 (Top Left) */}
-                  <div className="absolute -top-3.5 -left-3.5 bg-[#161616]/95 border border-white/20 backdrop-blur-md text-white py-1.5 px-3.5 rounded-2xl shadow-2xl flex items-center gap-2 text-xs font-bold transition-transform duration-300 group-hover:-translate-y-1">
-                    <span className="flex h-2 w-2 relative">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-brand opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-brand"></span>
-                    </span>
-                    <span>تجربة تسوق فاخرة</span>
-                  </div>
+ 
 
                   {/* Floating Badge 2 (Bottom Right) */}
                   <div className="absolute -bottom-3.5 -right-3.5 bg-[#161616]/95 border border-brand/40 backdrop-blur-md text-white py-2 px-4 rounded-2xl shadow-2xl flex items-center gap-2.5 text-xs font-bold transition-transform duration-300 group-hover:translate-y-1">
@@ -407,7 +401,7 @@ export function LandingClient({
                       <ShoppingBag className="w-3.5 h-3.5" />
                     </div>
                     <div className="text-right">
-                      <span className="block text-[9px] text-gray-400 leading-none">تطبيق البيرق</span>
+                      <span className="block text-[9px] text-gray-400 leading-none">تطبيق كفو</span>
                       <span className="block text-xs font-bold text-gradient-gold">أسرع وأسهل طلب</span>
                     </div>
                   </div>
@@ -523,15 +517,13 @@ export function LandingClient({
 
               {/* Message us now button */}
               <div className="mt-8 pt-6 border-t border-gray-50">
-                <a
-                  href={whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <div
+ 
                   className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-brand/10 hover:bg-brand hover:text-white text-brand font-bold text-sm transition-all duration-300 shadow-sm active:scale-98"
                 >
                   <span>راسلنا الآن</span>
                   <MessageCircle className="w-4 h-4" />
-                </a>
+                </div>
               </div>
             </div>
 
@@ -555,7 +547,7 @@ export function LandingClient({
                 ) : (
                   <div className="space-y-4 mb-8">
                     <p className="text-gray-500 text-sm leading-relaxed">
-                      البيرق هايبر ماركت هو خياركم الأول لتسوق الأغذية والاستهلاكيات بجودة استثنائية وأسعار تنافسية تلبي احتياجات الأسرة في اليمن.
+                      كفو هايبر ماركت هو خياركم الأول لتسوق الأغذية والاستهلاكيات بجودة استثنائية وأسعار تنافسية تلبي احتياجات الأسرة في اليمن.
                     </p>
                     <p className="text-gray-600 text-sm leading-relaxed">
                       تأسست مجموعتنا لتقدم مفهوماً حديثاً ومتطوراً للتسوق، نركز فيه على توفير المنتجات الطازجة وخيارات متنوعة، إلى جانب تفعيل خدمات التوصيل الذكية والتطبيقات المتطورة لراحتكم وتوفير وقتكم وجهدكم.
@@ -582,14 +574,14 @@ export function LandingClient({
 
               {/* تعرف علينا أكثر button */}
               <div className="mt-8 pt-6 border-t border-gray-50">
-                <a
-                  href="#services"
-                  onClick={(e) => scrollToSection(e, "services")}
+                <div
+                
                   className="flex items-center justify-center gap-2 w-full py-3.5 rounded-2xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm transition-all duration-300 shadow-sm active:scale-98"
+          
                 >
                   <span>تعرف علينا أكثر</span>
                   <ArrowLeft className="w-4 h-4" />
-                </a>
+                </div>
               </div>
             </div>
 
@@ -757,19 +749,19 @@ export function LandingClient({
             {/* Column 1: Brand details (Col span 4) */}
             <div className="lg:col-span-4 space-y-6">
               <div className="flex items-center gap-3">
-                <div className="bg-white p-1 rounded-lg">
+                <div className="bg-black/90 p-1.5 px-2.5 rounded-xl border border-white/10 flex items-center justify-center">
                   <Image
-                    src="/logo.png"
-                    alt="البيرق ماركت"
-                    width={38}
+                    src="/logo_kafo.jpeg"
+                    alt="كفو ماركت"
+                    width={70}
                     height={38}
-                    className="object-contain"
+                    className="h-9 w-auto object-contain rounded-md"
                   />
                 </div>
-                <span className="text-lg font-bold text-gradient-gold">البيرق ماركت</span>
+                <span className="text-lg font-bold text-white">كفو <span className="text-brand">ماركت</span></span>
               </div>
               <p className="text-sm text-gray-400 leading-relaxed max-w-sm">
-                نحن في البيرق ماركت نسعى لتوفير تجربة تسوق استثنائية متكاملة لجميع عملائنا، من خلال جودة منتجاتنا العالية، وأسعارنا المنافسة، وخدمة توصيل سريعة ومميزة.
+                نحن في كفو ماركت نسعى لتوفير تجربة تسوق استثنائية متكاملة لجميع عملائنا، من خلال جودة منتجاتنا العالية، وأسعارنا المنافسة، وخدمة توصيل سريعة ومميزة.
               </p>
               
               {/* Social Media Links */}
@@ -887,7 +879,7 @@ export function LandingClient({
           {/* Bottom Bar: Copyright and design credit */}
           <div className="border-t border-white/5 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-gray-500 font-medium">
             <div>
-              <p>جميع الحقوق محفوظة © {new Date().getFullYear()} البيرق ماركت.</p>
+              <p>جميع الحقوق محفوظة © {new Date().getFullYear()} كفو ماركت.</p>
             </div>
             <div className="flex items-center gap-1">
               <span>مصمم بـ</span>
@@ -904,7 +896,7 @@ export function LandingClient({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 bg-[#df9f00] hover:bg-[#b38000] text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 active:scale-95 hover:scale-105"
+          className="flex items-center gap-2 bg-brand hover:bg-brand-dark text-white px-4 py-3 rounded-full shadow-2xl transition-all duration-300 active:scale-95 hover:scale-105"
         >
           {/* Label visible on hover or desktop screens */}
           <span className="text-xs font-bold whitespace-nowrap overflow-hidden max-w-0 group-hover:max-w-[200px] lg:max-w-[200px] transition-all duration-300 ease-in-out">

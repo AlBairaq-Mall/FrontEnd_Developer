@@ -180,9 +180,9 @@ export function ProductsCatalog({ initialProducts, categories, units }: Products
                     onError={(e) => { e.currentTarget.src = "https://images.unsplash.com/photo-1542838132-92c53300491e?w=600&q=80" }}
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-gold/5 flex flex-col items-center justify-center text-brand/60 gap-2">
+                  <div className="w-full h-full bg-brand/5 flex flex-col items-center justify-center text-brand/60 gap-2">
                     <ShoppingBag className="w-10 h-10" />
-                    <span className="text-xs font-semibold">البيرق ماركت</span>
+                    <span className="text-xs font-semibold">كفو ماركت</span>
                   </div>
                 )}
                 

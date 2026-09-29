@@ -4,8 +4,8 @@ import { LandingClient } from "./LandingClient";
 export const dynamic = "force-dynamic";
 
 export const metadata = {
-  title: "البيرق ماركت | الرئيسية",
-  description: "المتجر الرسمي للبيرق ماركت - تسوق ذكي وأسعار تنافسية وتوصيل سريع",
+  title: "كفو ماركت | الرئيسية",
+  description: "المتجر الرسمي لكفو ماركت - تسوق ذكي وأسعار تنافسية وتوصيل سريع",
 };
 
 export default async function Page() {

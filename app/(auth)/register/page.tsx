@@ -16,11 +16,18 @@ export default function RegisterPage() {
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 p-4 font-cairo">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center mb-6">
-            <Image src="/logo.png" alt="البيرق ماركت" width={120} height={120} className="object-contain" priority />
+          <div className="inline-flex items-center justify-center p-3 px-6 rounded-3xl bg-black shadow-xl border border-white/10 ring-4 ring-brand/10 mb-6">
+            <Image
+              src="/logo_kafo.jpeg"
+              alt="كفو ماركت"
+              width={160}
+              height={70}
+              className="h-14 w-auto object-contain rounded-lg"
+              priority
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-900">إنشاء حساب جديد</h1>
-          <p className="text-gray-500 mt-2">انضم إلى لوحة إدارة البيرق الآن</p>
+          <p className="text-gray-500 mt-2">انضم إلى لوحة إدارة كفو الآن</p>
         </div>
 
         <Card className="shadow-lg">
@@ -130,7 +137,7 @@ export default function RegisterPage() {
         </Card>
 
         <p className="text-center text-sm text-gray-500 mt-6">
-          © {new Date().getFullYear()} البيرق. جميع الحقوق محفوظة.
+          © {new Date().getFullYear()} كفو ماركت. جميع الحقوق محفوظة.
         </p>
       </div>
     </div>

@@ -98,9 +98,19 @@ export default function Sidebar() {
   return (
     <aside className="w-64 bg-sidebar text-white flex flex-col min-h-screen sticky top-0 shrink-0 overflow-y-auto custom-scrollbar">
       <div className="p-4 sticky top-0 bg-sidebar z-10 border-b border-sidebar-hover/50 flex justify-center items-center">
-        <div className="bg-white p-2 rounded-xl">
-          <Image src="/logo.png" alt="البيرق ماركت" width={100} height={100} className="object-contain" priority />
-        </div>
+        <Link
+          href="/dashboard"
+          className="w-full flex items-center justify-center p-2.5 rounded-2xl bg-black/70 border border-white/10 hover:border-brand/50 transition-all duration-300 shadow-md group hover:shadow-brand/15"
+        >
+          <Image
+            src="/logo_kafo.jpeg"
+            alt="كفو ماركت"
+            width={160}
+            height={70}
+            className="h-12 w-auto object-contain transition-transform duration-300 group-hover:scale-105 rounded-lg"
+            priority
+          />
+        </Link>
       </div>
 
       <nav className="flex-1 px-4 py-4 space-y-6">
